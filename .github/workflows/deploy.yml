@@ -31,11 +31,20 @@ jobs:
           cp index.html public/ || true
           cp styles.css public/ || true
           cp example.json public/ || true
-          # Copy compiled assets
-          cp -r dist public/dist || true
+          # Copy compiled assets: place bundle at public root for simpler paths
+          if [ -f dist/bundle.js ]; then
+            cp dist/bundle.js public/bundle.js
+          else
+            cp -r dist public/dist || true
+          fi
 
-      - name: Commit and deploy to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          path: public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
