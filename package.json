@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "tsc",
-    "bundle": "esbuild dist/src/entry.js --bundle --outfile=dist/bundle.js --platform=browser --minify"
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc && npm run bundle && npm run copy-static",
+    "bundle": "esbuild dist/src/entry.js --bundle --outfile=dist/bundle.js --platform=browser --minify",
+    "copy-static": "cpy \"public/**/*\" dist"
   },
   "devDependencies": {
-    "esbuild": "^0.18.20",
+    "cpy-cli": "^6.0.0",
+    "esbuild": "^0.25.9",
+    "rimraf": "^5.0.0",
     "typescript": "^5.0.0"
   }
 }
