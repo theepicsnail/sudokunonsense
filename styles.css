@@ -1,0 +1,247 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.6;
+}
+
+:root {
+    --grid-max: 560px; /* cap grid width so cells aren't huge on desktop */
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: white;
+}
+
+header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    font-weight: 300;
+}
+
+.solver-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.puzzle-container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.puzzle-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 1px;
+    background: #333;
+    border: 3px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto 20px auto;
+    width: min(var(--grid-max), 92vw); /* keep reasonable size in Firefox */
+}
+
+/* Cell container (now a div) */
+.cell {
+    aspect-ratio: 1 / 1; /* works in modern FF, Chrome, Safari */
+    position: relative;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.cell:hover { background: #f0f8ff; }
+.cell:focus-within { background: #e3f2fd; box-shadow: inset 0 0 0 2px #2196f3; }
+
+/* Input inside the cell */
+.cell-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: clamp(14px, 2.6vw, 26px);
+    font-weight: 700;
+    color: #0b3b2e;
+}
+.cell-input:focus { outline: none; }
+.cell-input[readonly] { cursor: default; }
+
+/* Candidates overlay (3x3 grid) */
+.candidates {
+    position: absolute;
+    inset: 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    place-items: center; /* perfect centering in Firefox */
+    gap: 0;
+    pointer-events: none; /* clicks go to input */
+}
+.candidate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(9px, 1.4vw, 14px);
+    color: #666;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Hide candidates when a value is present */
+.cell.has-value .candidates { display: none; }
+
+.cell.initial .cell-input { color: #333; font-weight: 800; }
+.cell.solved { background: #d4edda; color: #155724; animation: solvedPulse 0.6s ease-in-out; }
+.cell.error { background: #f8d7da; color: #721c24; }
+
+/* Error highlighting */
+.cell.conflict { background: #fde2e1; box-shadow: inset 0 0 0 2px #dc3545; }
+.cell.nocands { background: #fff3cd; box-shadow: inset 0 0 0 2px #ffc107; }
+.cell.unit-issue { background: #fff7e6; box-shadow: inset 0 0 0 2px #ff9800; }
+
+@keyframes solvedPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+
+/* Thick borders between 3x3 boxes */
+.cell[data-col="2"], .cell[data-col="5"] { border-right: 2px solid #333; }
+.cell[data-row="2"], .cell[data-row="5"] { border-bottom: 2px solid #333; }
+
+.puzzle-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.solver-controls {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.tactic-selector { margin-bottom: 20px; }
+.tactic-selector label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+
+.tactic-dropdown {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+.tactic-dropdown:focus { outline: none; border-color: #2196f3; }
+
+.control-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary { background: #2196f3; color: white; }
+.btn-primary:hover { background: #1976d2; }
+.btn-secondary { background: #6c757d; color: white; }
+.btn-secondary:hover { background: #545b62; }
+.btn-success { background: #28a745; color: white; }
+.btn-success:hover { background: #1e7e34; }
+.btn-warning { background: #ffc107; color: #212529; }
+.btn-warning:hover { background: #e0a800; }
+.btn-outline { background: transparent; color: #2196f3; border: 2px solid #2196f3; }
+.btn-outline:hover { background: #2196f3; color: white; }
+
+.info-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.tactic-info, .solving-log { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+.tactic-info h3, .solving-log h3 { margin-bottom: 20px; color: #333; font-size: 1.5rem; font-weight: 600; }
+.tactic-description { line-height: 1.8; color: #666; }
+
+.log-content {
+    max-height: 300px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.log-entry { margin-bottom: 10px; padding: 8px; border-radius: 5px; border-left: 4px solid #2196f3; background: white; }
+.log-entry.success { border-left-color: #28a745; background: #f8fff9; }
+.log-entry.warning { border-left-color: #ffc107; background: #fffdf8; }
+.log-entry.error { border-left-color: #dc3545; background: #fff8f8; }
+
+.extensions-section { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+.extensions-section h3 { margin-bottom: 20px; color: #333; font-size: 1.5rem; font-weight: 600; }
+.extension-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.extension-info { background: #f8f9fa; border-radius: 10px; padding: 20px; color: #666; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .solver-section { grid-template-columns: 1fr; }
+    .info-section { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .container { padding: 10px; }
+    header h1 { font-size: 2rem; }
+    .puzzle-container, .solver-controls, .tactic-info, .solving-log, .extensions-section { padding: 20px; }
+    .control-buttons, .puzzle-controls, .extension-controls { flex-direction: column; }
+    .btn { width: 100%; }
+}
+
+/* Scrollbar styling */
+.log-content::-webkit-scrollbar { width: 8px; }
+.log-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+.log-content::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+.log-content::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
