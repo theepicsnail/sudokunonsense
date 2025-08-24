@@ -1,0 +1,46 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (tsc) and bundle
+        run: npm run build && npm run bundle
+
+      - name: Prepare public directory
+        run: |
+          rm -rf public || true
+          mkdir public
+          # Copy top-level static assets
+          cp index.html public/ || true
+          cp styles.css public/ || true
+          cp example.json public/ || true
+          # Copy compiled assets
+          cp -r dist public/dist || true
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
