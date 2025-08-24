@@ -2,11 +2,11 @@ class SudokuBoard {
     constructor() {
         this.board = Array(9).fill().map(() => Array(9).fill(0));
         this.initialBoard = Array(9).fill().map(() => Array(9).fill(0));
-        this.candidates = Array(9).fill().map(() => 
+        this.candidates = Array(9).fill().map(() =>
             Array(9).fill().map(() => new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]))
         );
         // Persistent candidate bans (manual eliminations)
-        this.bannedCandidates = Array(9).fill().map(() => 
+        this.bannedCandidates = Array(9).fill().map(() =>
             Array(9).fill().map(() => new Set())
         );
         this.solvingHistory = [];
@@ -26,14 +26,14 @@ class SudokuBoard {
 
     // Reset candidates based on current board state
     resetCandidates() {
-        this.candidates = Array(9).fill().map(() => 
+        this.candidates = Array(9).fill().map(() =>
             Array(9).fill().map(() => new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]))
         );
     }
 
     // Remove bans
     clearAllBans() {
-        this.bannedCandidates = Array(9).fill().map(() => 
+        this.bannedCandidates = Array(9).fill().map(() =>
             Array(9).fill().map(() => new Set())
         );
     }
@@ -53,7 +53,7 @@ class SudokuBoard {
     // Update candidates based on current board state
     updateCandidates() {
         this.resetCandidates();
-        
+
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
                 if (this.board[row][col] !== 0) {
@@ -74,14 +74,14 @@ class SudokuBoard {
                 this.candidates[row][c].delete(value);
             }
         }
-        
+
         // Remove from column
         for (let r = 0; r < 9; r++) {
             if (r !== row) {
                 this.candidates[r][col].delete(value);
             }
         }
-        
+
         // Remove from 3x3 box
         const boxRow = Math.floor(row / 3) * 3;
         const boxCol = Math.floor(col / 3) * 3;
@@ -106,18 +106,18 @@ class SudokuBoard {
         if (this.initialBoard[row][col] !== 0) {
             return false; // Cannot modify initial values
         }
-        
+
         this.board[row][col] = value;
         this.candidates[row][col].clear();
         // Clear bans for this cell when a value is set/cleared
         this.bannedCandidates[row][col].clear();
-        
+
         if (value !== 0) {
             this.removeCandidateFromPeers(row, col, value);
         } else {
             this.updateCandidates();
         }
-        
+
         return true;
     }
 
@@ -134,21 +134,21 @@ class SudokuBoard {
     // Check if a value is valid at a position
     isValid(row, col, value) {
         if (value === 0) return true;
-        
+
         // Check row
         for (let c = 0; c < 9; c++) {
             if (c !== col && this.board[row][c] === value) {
                 return false;
             }
         }
-        
+
         // Check column
         for (let r = 0; r < 9; r++) {
             if (r !== row && this.board[r][col] === value) {
                 return false;
             }
         }
-        
+
         // Check 3x3 box
         const boxRow = Math.floor(row / 3) * 3;
         const boxCol = Math.floor(col / 3) * 3;
@@ -159,7 +159,7 @@ class SudokuBoard {
                 }
             }
         }
-        
+
         return true;
     }
 
@@ -202,7 +202,7 @@ class SudokuBoard {
         const cells = [];
         const startRow = boxRow * 3;
         const startCol = boxCol * 3;
-        
+
         for (let r = startRow; r < startRow + 3; r++) {
             for (let c = startCol; c < startCol + 3; c++) {
                 cells.push({
@@ -212,7 +212,7 @@ class SudokuBoard {
                 });
             }
         }
-        
+
         return cells;
     }
 
@@ -249,7 +249,7 @@ class SudokuBoard {
     // Get hidden singles in rows, columns, and boxes
     getHiddenSingles() {
         const singles = [];
-        
+
         // Check rows
         for (let row = 0; row < 9; row++) {
             const candidates = this.getRowCandidates(row);
@@ -264,7 +264,7 @@ class SudokuBoard {
                 }
             }
         }
-        
+
         // Check columns
         for (let col = 0; col < 9; col++) {
             const candidates = this.getColumnCandidates(col);
@@ -279,7 +279,7 @@ class SudokuBoard {
                 }
             }
         }
-        
+
         // Check boxes
         for (let boxRow = 0; boxRow < 3; boxRow++) {
             for (let boxCol = 0; boxCol < 3; boxCol++) {
@@ -297,7 +297,7 @@ class SudokuBoard {
                 }
             }
         }
-        
+
         return singles;
     }
 
@@ -307,7 +307,7 @@ class SudokuBoard {
         for (let value = 1; value <= 9; value++) {
             candidates[value] = [];
         }
-        
+
         for (let col = 0; col < 9; col++) {
             if (this.board[row][col] === 0) {
                 for (let value of this.candidates[row][col]) {
@@ -315,7 +315,7 @@ class SudokuBoard {
                 }
             }
         }
-        
+
         return candidates;
     }
 
@@ -324,7 +324,7 @@ class SudokuBoard {
         for (let value = 1; value <= 9; value++) {
             candidates[value] = [];
         }
-        
+
         for (let row = 0; row < 9; row++) {
             if (this.board[row][col] === 0) {
                 for (let value of this.candidates[row][col]) {
@@ -332,7 +332,7 @@ class SudokuBoard {
                 }
             }
         }
-        
+
         return candidates;
     }
 
@@ -341,10 +341,10 @@ class SudokuBoard {
         for (let value = 1; value <= 9; value++) {
             candidates[value] = [];
         }
-        
+
         const startRow = boxRow * 3;
         const startCol = boxCol * 3;
-        
+
         for (let r = startRow; r < startRow + 3; r++) {
             for (let c = startCol; c < startCol + 3; c++) {
                 if (this.board[r][c] === 0) {
@@ -354,7 +354,7 @@ class SudokuBoard {
                 }
             }
         }
-        
+
         return candidates;
     }
 
@@ -376,7 +376,7 @@ class SudokuBoard {
     loadFromString(str) {
         const lines = str.trim().split('\n');
         const puzzle = [];
-        
+
         for (let line of lines) {
             const row = line.split(/\s+/).map(cell => {
                 const val = parseInt(cell);
@@ -384,7 +384,7 @@ class SudokuBoard {
             });
             puzzle.push(row);
         }
-        
+
         this.loadPuzzle(puzzle);
     }
 
@@ -408,15 +408,15 @@ class SudokuBoard {
     // Get example puzzle
     getExamplePuzzle() {
         return [
-            [5,3,0,0,7,0,0,0,0],
-            [6,0,0,1,9,5,0,0,0],
-            [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3],
-            [4,0,0,8,0,3,0,0,1],
-            [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0],
-            [0,0,0,4,1,9,0,0,5],
-            [0,0,0,0,8,0,0,7,9]
+            [5, 3, 0, 0, 7, 0, 0, 0, 0],
+            [6, 0, 0, 1, 9, 5, 0, 0, 0],
+            [0, 9, 8, 0, 0, 0, 0, 6, 0],
+            [8, 0, 0, 0, 6, 0, 0, 0, 3],
+            [4, 0, 0, 8, 0, 3, 0, 0, 1],
+            [7, 0, 0, 0, 2, 0, 0, 0, 6],
+            [0, 6, 0, 0, 0, 0, 2, 8, 0],
+            [0, 0, 0, 4, 1, 9, 0, 0, 5],
+            [0, 0, 0, 0, 8, 0, 0, 7, 9]
         ];
     }
 }
