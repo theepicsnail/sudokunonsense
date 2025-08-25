@@ -6,12 +6,19 @@
     "clean": "rimraf dist",
     "build": "npm run clean && tsc && npm run bundle && npm run copy-static",
     "bundle": "esbuild dist/src/entry.js --bundle --outfile=dist/bundle.js --platform=browser --minify",
-    "copy-static": "cpy \"public/**/*\" dist"
+    "copy-static": "cpy \"public/**/*\" dist",
+    "watch:esbuild": "esbuild src/entry.ts --bundle --outfile=dist/bundle.js --platform=browser --sourcemap --watch",
+    "watch:static": "chokidar \"public/**/*\" -c \"npm run copy-static\"",
+    "serve": "browser-sync start --server dist --files \"dist/**/*\" --no-ui --no-notify --single",
+    "dev": "npm run build && concurrently \"npm:watch:esbuild\" \"npm:watch:static\" \"npm:serve\""
   },
   "devDependencies": {
     "cpy-cli": "^6.0.0",
     "esbuild": "^0.25.9",
     "rimraf": "^5.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "concurrently": "^8.2.0",
+    "browser-sync": "^2.27.11",
+    "chokidar-cli": "^3.0.0"
   }
 }

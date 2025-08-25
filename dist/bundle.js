@@ -1,8 +1,1110 @@
-(()=>{var B=class{constructor(){this.board=Array(9).fill(null).map(()=>Array(9).fill(0)),this.initialBoard=Array(9).fill(null).map(()=>Array(9).fill(0)),this.candidates=Array(9).fill(null).map(()=>Array(9).fill(null).map(()=>new Set([1,2,3,4,5,6,7,8,9]))),this.bannedCandidates=Array(9).fill(null).map(()=>Array(9).fill(null).map(()=>new Set)),this.solvingHistory=[],this.currentStep=0}loadPuzzle(t){this.board=t.map(e=>[...e]),this.initialBoard=t.map(e=>[...e]),this.resetCandidates(),this.clearAllBans(),this.solvingHistory=[],this.currentStep=0,this.updateCandidates()}resetCandidates(){this.candidates=Array(9).fill(null).map(()=>Array(9).fill(null).map(()=>new Set([1,2,3,4,5,6,7,8,9])))}clearAllBans(){this.bannedCandidates=Array(9).fill(null).map(()=>Array(9).fill(null).map(()=>new Set))}enforceBans(){for(let t=0;t<9;t++)for(let e=0;e<9;e++)if(this.board[t][e]===0)for(let s of this.bannedCandidates[t][e])this.candidates[t][e].delete(s)}updateCandidates(){this.resetCandidates();for(let t=0;t<9;t++)for(let e=0;e<9;e++)this.board[t][e]!==0&&(this.candidates[t][e].clear(),this.removeCandidateFromPeers(t,e,this.board[t][e]));this.enforceBans()}removeCandidateFromPeers(t,e,s){for(let o=0;o<9;o++)o!==e&&this.candidates[t][o].delete(s);for(let o=0;o<9;o++)o!==t&&this.candidates[o][e].delete(s);let i=Math.floor(t/3)*3,l=Math.floor(e/3)*3;for(let o=i;o<i+3;o++)for(let n=l;n<l+3;n++)(o!==t||n!==e)&&this.candidates[o][n].delete(s)}banCandidate(t,e,s){s<1||s>9||(this.bannedCandidates[t][e].add(s),this.candidates[t][e].delete(s))}setValue(t,e,s){return this.initialBoard[t][e]!==0?!1:(this.board[t][e]=s,this.candidates[t][e].clear(),this.bannedCandidates[t][e].clear(),s!==0?this.removeCandidateFromPeers(t,e,s):this.updateCandidates(),!0)}getValue(t,e){return this.board[t][e]}getCandidates(t,e){return Array.from(this.candidates[t][e])}isValid(t,e,s){if(s===0)return!0;for(let o=0;o<9;o++)if(o!==e&&this.board[t][o]===s)return!1;for(let o=0;o<9;o++)if(o!==t&&this.board[o][e]===s)return!1;let i=Math.floor(t/3)*3,l=Math.floor(e/3)*3;for(let o=i;o<i+3;o++)for(let n=l;n<l+3;n++)if((o!==t||n!==e)&&this.board[o][n]===s)return!1;return!0}isBoardValid(){for(let t=0;t<9;t++)for(let e=0;e<9;e++)if(this.board[t][e]!==0&&!this.isValid(t,e,this.board[t][e]))return!1;return!0}isComplete(){for(let t=0;t<9;t++)for(let e=0;e<9;e++)if(this.board[t][e]===0)return!1;return this.isBoardValid()}getRow(t){return this.board[t]}getColumn(t){return this.board.map(e=>e[t])}getBox(t,e){let s=[],i=t*3,l=e*3;for(let o=i;o<i+3;o++)for(let n=l;n<l+3;n++)s.push({row:o,col:n,value:this.board[o][n]});return s}getEmptyCells(){let t=[];for(let e=0;e<9;e++)for(let s=0;s<9;s++)this.board[e][s]===0&&t.push({row:e,col:s});return t}getNakedSingles(){let t=[];for(let e=0;e<9;e++)for(let s=0;s<9;s++)this.board[e][s]===0&&this.candidates[e][s].size===1&&t.push({row:e,col:s,value:Array.from(this.candidates[e][s])[0]});return t}getHiddenSingles(){let t=[];for(let e=0;e<9;e++){let s=this.getRowCandidates(e);for(let i=1;i<=9;i++)s[i].length===1&&t.push({row:e,col:s[i][0],value:i,type:"row"})}for(let e=0;e<9;e++){let s=this.getColumnCandidates(e);for(let i=1;i<=9;i++)s[i].length===1&&t.push({row:s[i][0],col:e,value:i,type:"column"})}for(let e=0;e<3;e++)for(let s=0;s<3;s++){let i=this.getBoxCandidates(e,s);for(let l=1;l<=9;l++)if(i[l].length===1){let o=i[l][0];t.push({row:o.row,col:o.col,value:l,type:"box"})}}return t}getRowCandidates(t){let e={};for(let s=1;s<=9;s++)e[s]=[];for(let s=0;s<9;s++)if(this.board[t][s]===0)for(let i of this.candidates[t][s])e[i].push(s);return e}getColumnCandidates(t){let e={};for(let s=1;s<=9;s++)e[s]=[];for(let s=0;s<9;s++)if(this.board[s][t]===0)for(let i of this.candidates[s][t])e[i].push(s);return e}getBoxCandidates(t,e){let s={};for(let o=1;o<=9;o++)s[o]=[];let i=t*3,l=e*3;for(let o=i;o<i+3;o++)for(let n=l;n<l+3;n++)if(this.board[o][n]===0)for(let a of this.candidates[o][n])s[a].push({row:o,col:n});return s}reset(){this.board=this.initialBoard.map(t=>[...t]),this.clearAllBans(),this.updateCandidates(),this.solvingHistory=[],this.currentStep=0}toString(){return this.board.map(t=>t.join(" ")).join(`
-`)}loadFromString(t){let e=t.trim().split(`
-`),s=[];for(let i of e){let l=i.split(/\s+/).map(o=>{let n=parseInt(o);return isNaN(n)?0:n});s.push(l)}this.loadPuzzle(s)}loadFromCode(t){if(typeof t!="string")throw new Error("Code must be a string");let e=t.replace(/\s+/g,"");if(!/^\d{81}$/.test(e))throw new Error("Code must be exactly 81 digits (0-9)");let s=[];for(let i=0;i<9;i++){let l=[];for(let o=0;o<9;o++){let n=e[i*9+o];l.push(parseInt(n,10))}s.push(l)}this.loadPuzzle(s)}getExamplePuzzle(){return[[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]]}},E=B;var A=class{constructor(t,e=null){this.board=t,this.extensions=e}setExtensions(t){this.extensions=t}find(){return{found:!1,message:"Not implemented"}}},m=A;var x=class extends m{constructor(t,e=null){super(t,e),this.board=t,this.extensions=e}find(){let t=this.board.getNakedSingles();if(!t||t.length===0)return{found:!1,message:"No naked singles"};let e=t[0];return this.board.setValue(e.row,e.col,e.value),{found:!0,message:`Found naked single: ${e.value} at (${e.row+1}, ${e.col+1})`,changes:[{row:e.row,col:e.col,value:e.value,type:"naked-single"}]}}};var b=class extends m{constructor(t,e=null){super(t,e),this.board=t,this.extensions=e}find(){let t=this.board.getHiddenSingles();if(!t||t.length===0)return{found:!1,message:"No hidden singles"};let e=t[0];return this.board.setValue(e.row,e.col,e.value),{found:!0,message:`Found hidden single: ${e.value} at (${e.row+1}, ${e.col+1}) in ${e.type}`,changes:[{row:e.row,col:e.col,value:e.value,type:"hidden-single",context:e.type}]}}};var C=class extends m{constructor(t,e=null){super(t,e),this.board=t,this.extensions=e}find(){let t=!!this.extensions,e=t&&this.extensions.exportState?this.extensions.exportState():null,s=this.board.getEmptyCells();for(let{row:i,col:l}of s){let o=this.board.getCandidates(i,l);for(let n of o){let a=this.cloneBoard(this.board);if(a.setValue(i,l,n),t&&this.extensions&&this.extensions.importState)try{this.extensions.importState(e)}catch{}if(a.updateCandidates&&a.updateCandidates(),this.detectImmediateContradiction(a))return this.board.removeCandidate&&this.board.removeCandidate(i,l,n),{found:!0,message:`Eliminated candidate ${n} at (${i+1}, ${l+1}) by contradiction`,changes:[{row:i,col:l,removed:[n],type:"single-step-guess"}]}}}return{found:!1,message:"No contradiction-based eliminations found"}}cloneBoard(t){try{let e=new t.constructor;return e.board=t.board.map(s=>Array.isArray(s)?[...s]:s),e.initialBoard=(t.initialBoard||[]).map(s=>Array.isArray(s)?[...s]:s),e.updateCandidates&&e.updateCandidates(),e}catch{return JSON.parse(JSON.stringify(t))}}detectImmediateContradiction(t){for(let e=0;e<9;e++)for(let s=0;s<9;s++)if(!t.getValue(e,s)&&t.getCandidates(e,s).length===0)return{type:"empty-cell",row:e,col:s};for(let e=0;e<9;e++)for(let s=1;s<=9;s++)if(!t.rowHasValue(e,s)&&t.countCandidatePlacesInRow(e,s)===0)return{type:"row-no-place",row:e,digit:s};for(let e=0;e<9;e++)for(let s=1;s<=9;s++)if(!t.colHasValue(e,s)&&t.countCandidatePlacesInCol(e,s)===0)return{type:"col-no-place",col:e,digit:s};for(let e=0;e<3;e++)for(let s=0;s<3;s++)for(let i=1;i<=9;i++)if(!t.boxHasValue(e,s,i)&&t.countCandidatePlacesInBox(e,s,i)===0)return{type:"box-no-place",boxRow:e,boxCol:s,digit:i};return null}};var v=class{find(){return{found:!1,message:"Not implemented"}}},$={"naked-single":x,"hidden-single":b,"single-step-guess":C,"x-wing":v,swordfish:v,"xy-wing":v,"xyz-wing":v},S=$;var k=class{constructor(t){this.board=t,this.extensions=null,this.tacticDescriptions={"naked-single":{name:"Naked Single",description:"A cell that has only one possible candidate remaining. This is the most basic solving technique.",difficulty:"Easy",explanation:"When a cell has only one possible number that can be placed there, that number must be the solution for that cell."},"hidden-single":{name:"Hidden Single",description:"A number that can only be placed in one cell within a row, column, or box.",difficulty:"Easy",explanation:"When a number appears as a candidate in only one cell within a row, column, or 3x3 box, that number must be placed in that cell."},"single-step-guess":{name:"Single-Step Guess (Contradiction)",description:"Temporarily assume a candidate in a cell. If this immediately causes a contradiction (no candidates in a cell or a digit has no place in a unit), eliminate that candidate.",difficulty:"Medium",explanation:"Try a candidate and propagate constraints once. If the assumption leaves a unit without a place for some digit, that candidate is impossible."}}}setExtensions(t){this.extensions=t}executeTactic(t){let s=(S||{})[t];if(!s)return{found:!1,message:`Unknown tactic: ${t}`};let i=new s(this.board,this.extensions);return typeof i.setExtensions=="function"&&i.setExtensions(this.extensions),typeof i.find=="function"?i.find():{found:!1,message:`Tactic ${t} not implemented`}}getTacticDescription(t){return this.tacticDescriptions[t]||{name:"Unknown",description:"Unknown",difficulty:"Unknown",explanation:""}}},w=k;var M=class{constructor(t){this.board=t,this.extensions=new Map,this.thermoConstraints=[],this.knightConstraints=[],this.kingConstraints=[],this.extensionDescriptions={thermo:{name:"Thermo Sudoku",description:"Numbers along a thermometer must increase from the bulb to the tip.",rules:[],difficulty:"Medium"},knight:{name:"Knight's Move Sudoku",description:"Numbers cannot repeat in cells that are a knight's move away (L-shaped).",rules:[],difficulty:"Hard"},king:{name:"King's Move Sudoku",description:"Numbers cannot repeat in cells that are adjacent (including diagonally).",rules:[],difficulty:"Medium"},"box-sum-neighbor":{name:"Box-Sum Neighbor",description:"A cell value v cannot be next to any neighbor with value (boxNumber - v).",rules:[],difficulty:"Medium"}}}},z=M;var I=class{constructor(){this.lastUnitIssueKeys=null,this.puzzleGrid=null,this.tacticSelect=null,this.tacticDescription=null,this.solvingLog=null,this.extensionInfo=null,this.cells=[],this.board=new E,this.tactics=new w(this.board),this.extensions=new z(this.board),this.tactics.setExtensions(this.extensions),this.solvingHistory=[],this.currentStep=0,this.autoSolving=!1,this.autoSolveInterval=null,this.lastConflictKeys=new Set,this.lastNoCandKeys=new Set,this.autoTacticOrder=["naked-single","hidden-single","pointing-pair","box-line-reduction","naked-pair","hidden-pair","x-wing","swordfish","xy-wing","xyz-wing","single-step-guess"],this.initializeUI(),this.bindEvents(),this.loadExamplePuzzle()}initializeUI(){this.puzzleGrid=document.getElementById("puzzleGrid"),this.tacticSelect=document.getElementById("tacticSelect"),this.tacticDescription=document.getElementById("tacticDescription"),this.solvingLog=document.getElementById("solvingLog"),this.extensionInfo=document.getElementById("extensionInfo"),this.createSudokuGrid(),this.updateTacticDescription(),this.updateExtensionInfo()}createSudokuGrid(){if(this.puzzleGrid){this.puzzleGrid.innerHTML="",this.cells=[];for(let t=0;t<9;t++)for(let e=0;e<9;e++){let s=document.createElement("div");s.className="cell",s.dataset.row=String(t),s.dataset.col=String(e);let i=document.createElement("input");i.type="text",i.className="cell-input",i.maxLength=1,i.inputMode="numeric";let l=document.createElement("div");l.className="candidates";for(let o=1;o<=9;o++){let n=document.createElement("div");n.className="candidate",l.appendChild(n)}(e===2||e===5)&&(s.style.borderRight="2px solid #333"),(t===2||t===5)&&(s.style.borderBottom="2px solid #333"),s.appendChild(i),s.appendChild(l),this.puzzleGrid.appendChild(s),this.cells.push(s),i.addEventListener("input",o=>this.handleCellInput(o,t,e)),i.addEventListener("keydown",o=>this.handleCellKeydown(o,t,e)),i.addEventListener("focus",()=>this.handleCellFocus(t,e)),i.addEventListener("blur",()=>this.handleCellBlur(t,e))}}}bindEvents(){var t,e,s,i,l,o,n,a,d,c,r,f,u;let h=y=>document.getElementById(y);(t=h("clearBtn"))===null||t===void 0||t.addEventListener("click",()=>this.clearBoard()),(e=h("loadExampleBtn"))===null||e===void 0||e.addEventListener("click",()=>this.loadExamplePuzzle()),(s=h("validateBtn"))===null||s===void 0||s.addEventListener("click",()=>this.validateBoard()),(i=h("stepBtn"))===null||i===void 0||i.addEventListener("click",()=>this.executeStep()),(l=h("autoSolveBtn"))===null||l===void 0||l.addEventListener("click",()=>this.toggleAutoSolve()),(o=h("resetBtn"))===null||o===void 0||o.addEventListener("click",()=>this.resetBoard()),(n=this.tacticSelect)===null||n===void 0||n.addEventListener("change",()=>this.updateTacticDescription()),(a=h("addThermoBtn"))===null||a===void 0||a.addEventListener("click",()=>this.addThermoSudoku()),(d=h("addKnightBtn"))===null||d===void 0||d.addEventListener("click",()=>this.addKnightsMove()),(c=h("addKingBtn"))===null||c===void 0||c.addEventListener("click",()=>this.addKingsMove()),(r=h("addBoxSumNeighborBtn"))===null||r===void 0||r.addEventListener("click",()=>this.addBoxSumNeighbor()),(f=h("clearExtensionsBtn"))===null||f===void 0||f.addEventListener("click",()=>this.clearExtensions()),(u=h("loadCodeBtn"))===null||u===void 0||u.addEventListener("click",()=>this.loadFromCodeInput())}handleCellInput(t,e,s){let i=t.target,l=(i.value||"").replace(/[^1-9]/g,"");i.value=l;let o=l===""?0:parseInt(l,10);if(o!==0&&this.extensions.getActiveExtensions&&this.extensions.getActiveExtensions().length>0&&this.extensions.validateMove&&!this.extensions.validateMove(e,s,o)){i.value="",this.logMessage("Move violates constraints","error");return}this.board.setValue(e,s,o),this.updateCellDisplay(e,s),this.updateCandidates()}handleCellKeydown(t,e,s){(t.key==="Backspace"||t.key==="Delete")&&(this.board.setValue(e,s,0),this.updateCellDisplay(e,s),this.updateCandidates())}handleCellFocus(t,e){this.highlightRelatedCells(t,e)}handleCellBlur(t,e){this.clearHighlights()}highlightRelatedCells(t,e){for(let s=0;s<9;s++)for(let i=0;i<9;i++){let l=this.getCellElement(s,i);(s===t||i===e||Math.floor(s/3)===Math.floor(t/3)&&Math.floor(i/3)===Math.floor(e/3))&&l.classList.add("highlighted")}}clearHighlights(){this.cells.forEach(t=>t.classList.remove("highlighted"))}getCellElement(t,e){return this.cells[t*9+e]}updateCellDisplay(t,e){let s=this.getCellElement(t,e),i=s.querySelector(".cell-input"),l=this.board.getValue(t,e),o=this.board.initialBoard[t][e]!==0;i.value=l||"",i.readOnly=o&&l!==0,s.classList.remove("initial","solved","has-value","conflict","nocands"),o&&s.classList.add("initial"),l!==0&&s.classList.add("solved","has-value"),this.renderCandidatesForCell(t,e)}updateBoardDisplay(){for(let t=0;t<9;t++)for(let e=0;e<9;e++)this.updateCellDisplay(t,e)}updateCandidates(){this.board.updateCandidates&&this.board.updateCandidates(),this.extensions.getActiveExtensions&&this.extensions.getActiveExtensions().length>0&&this.extensions.updateCandidatesWithExtensions&&this.extensions.updateCandidatesWithExtensions(),this.renderAllCandidates(),this.checkConflicts()}renderAllCandidates(){for(let t=0;t<9;t++)for(let e=0;e<9;e++)this.renderCandidatesForCell(t,e)}renderCandidatesForCell(t,e){let i=this.getCellElement(t,e).querySelector(".candidates"),l=this.board.getValue(t,e),o=i.children;if(l!==0){for(let a=0;a<9;a++)o[a].textContent="";return}let n=this.board.getCandidates(t,e);for(let a=1;a<=9;a++){let d=a-1;o[d].textContent=n.includes(a)?String(a):""}}clearBoard(){this.board=new this.board.constructor,this.tactics=new this.tactics.constructor(this.board),this.extensions=new this.extensions.constructor(this.board),this.tactics.setExtensions(this.extensions),this.solvingHistory=[],this.currentStep=0,this.lastConflictKeys.clear(),this.lastNoCandKeys.clear(),this.updateBoardDisplay(),this.clearHighlights(),this.logMessage("Board cleared","info")}async loadExamplePuzzle(){try{let t=await fetch("examp.e.json");if(t&&t.ok){let e=await t.json();this.board.loadPuzzle(e),this.updateBoardDisplay(),this.updateCandidates(),this.logMessage("Example puzzle loaded from examp.e.json","success");return}}catch{}if(this.board.getExamplePuzzle)try{let t=this.board.getExamplePuzzle();this.board.loadPuzzle(t),this.updateBoardDisplay(),this.updateCandidates(),this.logMessage("Example puzzle loaded","success");return}catch{this.logMessage("Failed to load example puzzle","error");return}this.logMessage("No example puzzle available","warning")}validateBoard(){this.board.isBoardValid()?this.board.isComplete()?this.logMessage("Puzzle is complete and valid!","success"):this.logMessage("Puzzle is valid but incomplete","warning"):this.logMessage("Puzzle has errors","error")}executeStep(){var t;let e=((t=this.tacticSelect)===null||t===void 0?void 0:t.value)||"",s=this.tactics.executeTactic(e);s&&s.found?(this.solvingHistory.push({tactic:e,result:s,timestamp:new Date}),this.updateBoardDisplay(),this.board.updateCandidates&&this.board.updateCandidates(),this.extensions.getActiveExtensions&&this.extensions.getActiveExtensions().length>0&&this.extensions.updateCandidatesWithExtensions&&this.extensions.updateCandidatesWithExtensions(),s.changes&&this.applyCandidateEliminations(s.changes),this.renderAllCandidates(),this.checkConflicts(),this.logMessage(s.message,"success"),s.changes&&this.highlightChanges(s.changes),this.board.isComplete&&this.board.isComplete()&&(this.logMessage("Puzzle solved!","success"),this.stopAutoSolve())):this.logMessage(s?s.message:"Tactic returned no result","warning")}applyCandidateEliminations(t){let e=!1,s=i=>Array.isArray(i)?i:i!=null?[i]:[];return t.forEach(i=>{let{row:l,col:o}=i,n=new Set([...s(i.removed),...s(i.value),...s(i.values)].filter(a=>typeof a=="number"));n.size!==0&&this.board.getValue(l,o)===0&&n.forEach(a=>{this.board.banCandidate(l,o,a),e=!0})}),e&&(this.extensions.getActiveExtensions&&this.extensions.getActiveExtensions().length>0&&this.extensions.updateCandidatesWithExtensions&&this.extensions.updateCandidatesWithExtensions(),this.renderAllCandidates()),e}highlightChanges(t){this.clearHighlights(),t.forEach(e=>{let s=this.getCellElement(e.row,e.col);s.classList.add("highlighted"),setTimeout(()=>s.classList.remove("highlighted"),2e3)})}toggleAutoSolve(){this.autoSolving?this.stopAutoSolve():this.startAutoSolve()}startAutoSolve(){this.autoSolving=!0;let t=document.getElementById("autoSolveBtn");t&&(t.textContent="Stop Auto Solve",t.classList.remove("btn-success"),t.classList.add("btn-warning")),this.autoSolveInterval=setInterval(()=>{this.runAutoStep()},600)}runAutoStep(){for(let t of this.autoTacticOrder){let e=JSON.stringify(this.board.board),s=this.tactics.executeTactic(t);if(!s||!s.found)continue;let i=JSON.stringify(this.board.board),l=e!==i;l&&this.updateCandidates();let o=!1;if(s.changes&&(o=this.applyCandidateEliminations(s.changes)),!(!l&&!o))return this.solvingHistory.push({tactic:t,result:s,timestamp:new Date}),this.updateBoardDisplay(),this.renderAllCandidates(),this.checkConflicts(),this.logMessage(s.message,"success"),s.changes&&this.highlightChanges(s.changes),this.board.isComplete&&this.board.isComplete()&&(this.logMessage("Puzzle solved!","success"),this.stopAutoSolve()),!0}return this.logMessage("No tactic made progress. Auto-solve paused.","warning"),this.stopAutoSolve(),!1}stopAutoSolve(){this.autoSolving=!1;let t=document.getElementById("autoSolveBtn");t&&(t.textContent="Auto Solve",t.classList.remove("btn-warning"),t.classList.add("btn-success")),this.autoSolveInterval&&(clearInterval(this.autoSolveInterval),this.autoSolveInterval=null)}resetBoard(){this.board.reset&&this.board.reset(),this.solvingHistory=[],this.currentStep=0,this.lastConflictKeys.clear(),this.lastNoCandKeys.clear(),this.updateBoardDisplay(),this.updateCandidates(),this.clearHighlights(),this.logMessage("Board reset to initial state","info")}updateTacticDescription(){var t;let e=((t=this.tacticSelect)===null||t===void 0?void 0:t.value)||"",s=this.tactics.getTacticDescription(e);this.tacticDescription&&(this.tacticDescription.innerHTML=`
-            <h4>${s.name}</h4>
-            <p><strong>Difficulty:</strong> ${s.difficulty}</p>
-            <p>${s.description}</p>
-            <p><strong>How it works:</strong> ${s.explanation}</p>
-        `)}addThermoSudoku(){let t=this.extensions.getExampleThermoPaths(),e=this.extensions.addThermoSudoku(t);e.success&&(this.updateCandidates(),this.updateExtensionInfo(),this.logMessage(e.message,"success"))}addKnightsMove(){let t=this.extensions.addKnightsMove();t.success&&(this.updateCandidates(),this.updateExtensionInfo(),this.logMessage(t.message,"success"))}addKingsMove(){let t=this.extensions.addKingsMove();t.success&&(this.updateCandidates(),this.updateExtensionInfo(),this.logMessage(t.message,"success"))}addBoxSumNeighbor(){let t=this.extensions.addBoxSumNeighbor();t.success&&(this.updateCandidates(),this.updateExtensionInfo(),this.logMessage(t.message,"success"))}clearExtensions(){let t=this.extensions.clearExtensions();t.success&&(this.updateCandidates(),this.updateExtensionInfo(),this.logMessage(t.message,"success"))}updateExtensionInfo(){let t=this.extensions.getActiveExtensions?this.extensions.getActiveExtensions():[];if(!this.extensionInfo)return;if(t.length===0){this.extensionInfo.innerHTML="<p>No extensions active. Add custom rules to enhance the puzzle.</p>";return}let e="<h4>Active Extensions:</h4><ul>";t.forEach(s=>{let i=this.extensions.getExtensionDescription(s),l=this.extensions.getConstraintCount(s);e+=`<li><strong>${i.name}</strong> (${i.difficulty})<br><small>${i.description}</small><br><small>Constraints: ${l}</small></li>`}),e+="</ul>",this.extensionInfo.innerHTML=e}checkConflicts(){let t=new Set,e=new Set,s=new Set;for(let n=0;n<9;n++){let a=new Map;for(let d=0;d<9;d++){let c=this.board.getValue(n,d);if(c===0)continue;let r=a.get(c)||[];r.push([n,d]),a.set(c,r)}for(let[,d]of a)d.length>1&&d.forEach(([c,r])=>t.add(`${c},${r}`))}for(let n=0;n<9;n++){let a=new Map;for(let d=0;d<9;d++){let c=this.board.getValue(d,n);if(c===0)continue;let r=a.get(c)||[];r.push([d,n]),a.set(c,r)}for(let[,d]of a)d.length>1&&d.forEach(([c,r])=>t.add(`${c},${r}`))}for(let n=0;n<3;n++)for(let a=0;a<3;a++){let d=new Map;for(let c=n*3;c<n*3+3;c++)for(let r=a*3;r<a*3+3;r++){let f=this.board.getValue(c,r);if(f===0)continue;let u=d.get(f)||[];u.push([c,r]),d.set(f,u)}for(let[,c]of d)c.length>1&&c.forEach(([r,f])=>t.add(`${r},${f}`))}for(let n=0;n<9;n++)for(let a=0;a<9;a++)this.board.getValue(n,a)===0&&this.board.candidates[n][a].size===0&&e.add(`${n},${a}`);for(let n=0;n<9;n++)for(let a=1;a<=9;a++){if(this.board.getRow(n).includes(a))continue;let c=[];for(let r=0;r<9;r++)this.board.getValue(n,r)===0&&this.board.candidates[n][r].has(a)&&c.push([n,r]);if(c.length===0)for(let r=0;r<9;r++)this.board.getValue(n,r)===0&&s.add(`${n},${r}`)}for(let n=0;n<9;n++)for(let a=1;a<=9;a++){let d=!1;for(let r=0;r<9;r++)if(this.board.getValue(r,n)===a){d=!0;break}if(d)continue;let c=[];for(let r=0;r<9;r++)this.board.getValue(r,n)===0&&this.board.candidates[r][n].has(a)&&c.push([r,n]);if(c.length===0)for(let r=0;r<9;r++)this.board.getValue(r,n)===0&&s.add(`${r},${n}`)}for(let n=0;n<3;n++)for(let a=0;a<3;a++)for(let d=1;d<=9;d++){let c=!1,r=[];for(let u=n*3;u<n*3+3;u++)for(let h=a*3;h<a*3+3;h++){let y=this.board.getValue(u,h);y===d&&(c=!0),y===0&&r.push([u,h])}if(c)continue;let f=!1;for(let[u,h]of r)if(this.board.candidates[u][h].has(d)){f=!0;break}if(!f&&r.length>0)for(let[u,h]of r)s.add(`${u},${h}`)}this.cells.forEach(n=>n.classList.remove("conflict","nocands","unit-issue")),t.forEach(n=>{let[a,d]=n.split(",").map(Number);this.getCellElement(a,d).classList.add("conflict")}),e.forEach(n=>{let[a,d]=n.split(",").map(Number);this.getCellElement(a,d).classList.add("nocands")}),s.forEach(n=>{let[a,d]=n.split(",").map(Number);this.getCellElement(a,d).classList.add("unit-issue")});let i=!this.setsEqual(t,this.lastConflictKeys),l=!this.setsEqual(e,this.lastNoCandKeys),o=!this.setsEqual(s,this.lastUnitIssueKeys||new Set);(i||l||o)&&(t.size>0&&this.logMessage(`Conflicts detected in ${t.size} cell(s)`,"error"),e.size>0&&this.logMessage(`No-candidate issue in ${e.size} cell(s)`,"warning"),s.size>0&&this.logMessage("Unit impossibility detected (a digit has no place)","warning"),t.size===0&&e.size===0&&s.size===0&&this.logMessage("No conflicts detected","success")),this.lastConflictKeys=t,this.lastNoCandKeys=e,this.lastUnitIssueKeys=s}setsEqual(t,e){if(t.size!==e.size)return!1;for(let s of t)if(!e.has(s))return!1;return!0}logMessage(t,e="info"){let s=new Date().toLocaleTimeString();if(!this.solvingLog)return;let i=document.createElement("div");i.className=`log-entry ${e}`,i.innerHTML=`<strong>[${s}]</strong> ${t}`,this.solvingLog.appendChild(i),this.solvingLog.scrollTop=this.solvingLog.scrollHeight;let l=this.solvingLog.querySelectorAll(".log-entry");l.length>50&&l[0].remove()}getBoardState(){return{board:this.board.board,initialBoard:this.board.initialBoard,extensions:this.extensions.exportState(),solvingHistory:this.solvingHistory}}loadBoardState(t){t.board&&this.board.loadPuzzle(t.board),t.extensions&&this.extensions.importState(t.extensions),t.solvingHistory&&(this.solvingHistory=t.solvingHistory),this.updateBoardDisplay(),this.updateCandidates(),this.updateExtensionInfo()}loadFromCodeInput(){let t=document.getElementById("codeInput"),e=(t?.value||"").trim();try{this.board.loadFromCode(e),this.updateBoardDisplay(),this.updateCandidates(),this.clearHighlights(),this.solvingHistory=[],this.logMessage("Loaded puzzle from 81-digit code","success")}catch(s){this.logMessage(s.message||"Invalid code","error")}}},L=I;var g=globalThis;g.SudokuBoard=E;g.SudokuTactics=w;g.SudokuExtensions=z;g.tacticClasses=S;g.SudokuApp=L;document.addEventListener("DOMContentLoaded",()=>{try{g.sudokuApp=new g.SudokuApp}catch(p){console.warn("entry.ts: failed to auto-instantiate SudokuApp",p)}});})();
+(() => {
+  // src/sudoku.ts
+  var SudokuBoard = class {
+    constructor() {
+      this.board = Array(9).fill(null).map(() => Array(9).fill(0));
+      this.initialBoard = Array(9).fill(null).map(() => Array(9).fill(0));
+      this.candidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => /* @__PURE__ */ new Set([1, 2, 3, 4, 5, 6, 7, 8, 9])));
+      this.bannedCandidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => /* @__PURE__ */ new Set()));
+      this.solvingHistory = [];
+      this.currentStep = 0;
+    }
+    loadPuzzle(puzzle) {
+      this.board = puzzle.map((row) => [...row]);
+      this.initialBoard = puzzle.map((row) => [...row]);
+      this.resetCandidates();
+      this.clearAllBans();
+      this.solvingHistory = [];
+      this.currentStep = 0;
+      this.updateCandidates();
+    }
+    resetCandidates() {
+      this.candidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => /* @__PURE__ */ new Set([1, 2, 3, 4, 5, 6, 7, 8, 9])));
+    }
+    clearAllBans() {
+      this.bannedCandidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => /* @__PURE__ */ new Set()));
+    }
+    enforceBans() {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (this.board[r][c] !== 0) continue;
+          for (const val of this.bannedCandidates[r][c]) {
+            this.candidates[r][c].delete(val);
+          }
+        }
+      }
+    }
+    updateCandidates() {
+      this.resetCandidates();
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          if (this.board[row][col] !== 0) {
+            this.candidates[row][col].clear();
+            this.removeCandidateFromPeers(row, col, this.board[row][col]);
+          }
+        }
+      }
+      this.enforceBans();
+    }
+    removeCandidateFromPeers(row, col, value) {
+      for (let c = 0; c < 9; c++) {
+        if (c !== col) this.candidates[row][c].delete(value);
+      }
+      for (let r = 0; r < 9; r++) {
+        if (r !== row) this.candidates[r][col].delete(value);
+      }
+      const boxRow = Math.floor(row / 3) * 3;
+      const boxCol = Math.floor(col / 3) * 3;
+      for (let r = boxRow; r < boxRow + 3; r++) {
+        for (let c = boxCol; c < boxCol + 3; c++) {
+          if (r !== row || c !== col) this.candidates[r][c].delete(value);
+        }
+      }
+    }
+    banCandidate(row, col, value) {
+      if (value < 1 || value > 9) return;
+      this.bannedCandidates[row][col].add(value);
+      this.candidates[row][col].delete(value);
+    }
+    setValue(row, col, value) {
+      if (this.initialBoard[row][col] !== 0) return false;
+      this.board[row][col] = value;
+      this.candidates[row][col].clear();
+      this.bannedCandidates[row][col].clear();
+      if (value !== 0) this.removeCandidateFromPeers(row, col, value);
+      else this.updateCandidates();
+      return true;
+    }
+    getValue(row, col) {
+      return this.board[row][col];
+    }
+    getCandidates(row, col) {
+      return Array.from(this.candidates[row][col]);
+    }
+    isValid(row, col, value) {
+      if (value === 0) return true;
+      for (let c = 0; c < 9; c++) if (c !== col && this.board[row][c] === value) return false;
+      for (let r = 0; r < 9; r++) if (r !== row && this.board[r][col] === value) return false;
+      const boxRow = Math.floor(row / 3) * 3;
+      const boxCol = Math.floor(col / 3) * 3;
+      for (let r = boxRow; r < boxRow + 3; r++) {
+        for (let c = boxCol; c < boxCol + 3; c++) {
+          if ((r !== row || c !== col) && this.board[r][c] === value) return false;
+        }
+      }
+      return true;
+    }
+    isBoardValid() {
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          if (this.board[row][col] !== 0 && !this.isValid(row, col, this.board[row][col])) return false;
+        }
+      }
+      return true;
+    }
+    isComplete() {
+      for (let row = 0; row < 9; row++) for (let col = 0; col < 9; col++) if (this.board[row][col] === 0) return false;
+      return this.isBoardValid();
+    }
+    getRow(row) {
+      return this.board[row];
+    }
+    getColumn(col) {
+      return this.board.map((r) => r[col]);
+    }
+    getBox(boxRow, boxCol) {
+      const cells = [];
+      const startRow = boxRow * 3;
+      const startCol = boxCol * 3;
+      for (let r = startRow; r < startRow + 3; r++) {
+        for (let c = startCol; c < startCol + 3; c++) {
+          cells.push({ row: r, col: c, value: this.board[r][c] });
+        }
+      }
+      return cells;
+    }
+    getEmptyCells() {
+      const empty = [];
+      for (let row = 0; row < 9; row++) for (let col = 0; col < 9; col++) if (this.board[row][col] === 0) empty.push({ row, col });
+      return empty;
+    }
+    getNakedSingles() {
+      const singles = [];
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          if (this.board[row][col] === 0 && this.candidates[row][col].size === 1) {
+            singles.push({ row, col, value: Array.from(this.candidates[row][col])[0] });
+          }
+        }
+      }
+      return singles;
+    }
+    getHiddenSingles() {
+      const singles = [];
+      for (let row = 0; row < 9; row++) {
+        const candidates = this.getRowCandidates(row);
+        for (let value = 1; value <= 9; value++) {
+          if (candidates[value].length === 1) {
+            singles.push({ row, col: candidates[value][0], value, type: "row" });
+          }
+        }
+      }
+      for (let col = 0; col < 9; col++) {
+        const candidates = this.getColumnCandidates(col);
+        for (let value = 1; value <= 9; value++) {
+          if (candidates[value].length === 1) {
+            singles.push({ row: candidates[value][0], col, value, type: "column" });
+          }
+        }
+      }
+      for (let boxRow = 0; boxRow < 3; boxRow++) {
+        for (let boxCol = 0; boxCol < 3; boxCol++) {
+          const candidates = this.getBoxCandidates(boxRow, boxCol);
+          for (let value = 1; value <= 9; value++) {
+            if (candidates[value].length === 1) {
+              const pos = candidates[value][0];
+              singles.push({ row: pos.row, col: pos.col, value, type: "box" });
+            }
+          }
+        }
+      }
+      return singles;
+    }
+    getRowCandidates(row) {
+      const candidates = {};
+      for (let value = 1; value <= 9; value++) candidates[value] = [];
+      for (let col = 0; col < 9; col++) {
+        if (this.board[row][col] === 0) {
+          for (const value of this.candidates[row][col]) candidates[value].push(col);
+        }
+      }
+      return candidates;
+    }
+    getColumnCandidates(col) {
+      const candidates = {};
+      for (let value = 1; value <= 9; value++) candidates[value] = [];
+      for (let row = 0; row < 9; row++) {
+        if (this.board[row][col] === 0) {
+          for (const value of this.candidates[row][col]) candidates[value].push(row);
+        }
+      }
+      return candidates;
+    }
+    getBoxCandidates(boxRow, boxCol) {
+      const candidates = {};
+      for (let value = 1; value <= 9; value++) candidates[value] = [];
+      const startRow = boxRow * 3;
+      const startCol = boxCol * 3;
+      for (let r = startRow; r < startRow + 3; r++) {
+        for (let c = startCol; c < startCol + 3; c++) {
+          if (this.board[r][c] === 0) {
+            for (const value of this.candidates[r][c]) candidates[value].push({ row: r, col: c });
+          }
+        }
+      }
+      return candidates;
+    }
+    reset() {
+      this.board = this.initialBoard.map((row) => [...row]);
+      this.clearAllBans();
+      this.updateCandidates();
+      this.solvingHistory = [];
+      this.currentStep = 0;
+    }
+    toString() {
+      return this.board.map((row) => row.join(" ")).join("\n");
+    }
+    loadFromString(str) {
+      const lines = str.trim().split("\n");
+      const puzzle = [];
+      for (let line of lines) {
+        const row = line.split(/\s+/).map((cell) => {
+          const val = parseInt(cell);
+          return isNaN(val) ? 0 : val;
+        });
+        puzzle.push(row);
+      }
+      this.loadPuzzle(puzzle);
+    }
+    loadFromCode(code) {
+      if (typeof code !== "string") throw new Error("Code must be a string");
+      const digits = code.replace(/\s+/g, "");
+      if (!/^\d{81}$/.test(digits)) throw new Error("Code must be exactly 81 digits (0-9)");
+      const puzzle = [];
+      for (let r = 0; r < 9; r++) {
+        const row = [];
+        for (let c = 0; c < 9; c++) {
+          const ch = digits[r * 9 + c];
+          row.push(parseInt(ch, 10));
+        }
+        puzzle.push(row);
+      }
+      this.loadPuzzle(puzzle);
+    }
+    getExamplePuzzle() {
+      return [
+        [5, 3, 0, 0, 7, 0, 0, 0, 0],
+        [6, 0, 0, 1, 9, 5, 0, 0, 0],
+        [0, 9, 8, 0, 0, 0, 0, 6, 0],
+        [8, 0, 0, 0, 6, 0, 0, 0, 3],
+        [4, 0, 0, 8, 0, 3, 0, 0, 1],
+        [7, 0, 0, 0, 2, 0, 0, 0, 6],
+        [0, 6, 0, 0, 0, 0, 2, 8, 0],
+        [0, 0, 0, 4, 1, 9, 0, 0, 5],
+        [0, 0, 0, 0, 8, 0, 0, 7, 9]
+      ];
+    }
+  };
+  var sudoku_default = SudokuBoard;
+
+  // src/tactics/base_tactic.ts
+  var BaseTactic = class {
+    constructor(board, extensions = null) {
+      this.board = board;
+      this.extensions = extensions;
+    }
+    setExtensions(ext) {
+      this.extensions = ext;
+    }
+    find() {
+      return { found: false, message: "Not implemented" };
+    }
+  };
+  var base_tactic_default = BaseTactic;
+
+  // src/tactics/naked_single.ts
+  var NakedSingle = class extends base_tactic_default {
+    constructor(board, extensions = null) {
+      super(board, extensions);
+      this.board = board;
+      this.extensions = extensions;
+    }
+    find() {
+      const singles = this.board.getNakedSingles();
+      if (!singles || singles.length === 0) return { found: false, message: "No naked singles" };
+      const result = singles[0];
+      this.board.setValue(result.row, result.col, result.value);
+      return { found: true, message: `Found naked single: ${result.value} at (${result.row + 1}, ${result.col + 1})`, changes: [{ row: result.row, col: result.col, value: result.value, type: "naked-single" }] };
+    }
+  };
+
+  // src/tactics/hidden_single.ts
+  var HiddenSingle = class extends base_tactic_default {
+    constructor(board, extensions = null) {
+      super(board, extensions);
+      this.board = board;
+      this.extensions = extensions;
+    }
+    find() {
+      const singles = this.board.getHiddenSingles();
+      if (!singles || singles.length === 0) {
+        return { found: false, message: "No hidden singles" };
+      }
+      const result = singles[0];
+      this.board.setValue(result.row, result.col, result.value);
+      return {
+        found: true,
+        message: `Found hidden single: ${result.value} at (${result.row + 1}, ${result.col + 1}) in ${result.type}`,
+        changes: [{ row: result.row, col: result.col, value: result.value, type: "hidden-single", context: result.type }]
+      };
+    }
+  };
+
+  // src/tactics/single_step_guess.ts
+  var SingleStepGuess = class extends base_tactic_default {
+    constructor(board, extensions = null) {
+      super(board, extensions);
+      this.board = board;
+      this.extensions = extensions;
+    }
+    find() {
+      const useExtensions = !!this.extensions;
+      const exported = useExtensions && this.extensions.exportState ? this.extensions.exportState() : null;
+      const emptyCells = this.board.getEmptyCells();
+      for (const { row, col } of emptyCells) {
+        const cands = this.board.getCandidates(row, col);
+        for (const candidate of cands) {
+          const cloned = this.cloneBoard(this.board);
+          cloned.setValue(row, col, candidate);
+          if (useExtensions && this.extensions && this.extensions.importState) {
+            try {
+              this.extensions.importState(exported);
+            } catch (e) {
+            }
+          }
+          if (cloned.updateCandidates) cloned.updateCandidates();
+          const contradiction = this.detectImmediateContradiction(cloned);
+          if (contradiction) {
+            if (this.board.removeCandidate) this.board.removeCandidate(row, col, candidate);
+            return { found: true, message: `Eliminated candidate ${candidate} at (${row + 1}, ${col + 1}) by contradiction`, changes: [{ row, col, removed: [candidate], type: "single-step-guess" }] };
+          }
+        }
+      }
+      return { found: false, message: "No contradiction-based eliminations found" };
+    }
+    cloneBoard(sourceBoard) {
+      try {
+        const b = new sourceBoard.constructor();
+        b.board = sourceBoard.board.map((r) => Array.isArray(r) ? [...r] : r);
+        b.initialBoard = (sourceBoard.initialBoard || []).map((r) => Array.isArray(r) ? [...r] : r);
+        if (b.updateCandidates) b.updateCandidates();
+        return b;
+      } catch (e) {
+        return JSON.parse(JSON.stringify(sourceBoard));
+      }
+    }
+    detectImmediateContradiction(testBoard) {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (!testBoard.getValue(r, c) && testBoard.getCandidates(r, c).length === 0) return { type: "empty-cell", row: r, col: c };
+        }
+      }
+      for (let r = 0; r < 9; r++) {
+        for (let d = 1; d <= 9; d++) {
+          if (!testBoard.rowHasValue(r, d) && testBoard.countCandidatePlacesInRow(r, d) === 0) return { type: "row-no-place", row: r, digit: d };
+        }
+      }
+      for (let c = 0; c < 9; c++) {
+        for (let d = 1; d <= 9; d++) {
+          if (!testBoard.colHasValue(c, d) && testBoard.countCandidatePlacesInCol(c, d) === 0) return { type: "col-no-place", col: c, digit: d };
+        }
+      }
+      for (let br = 0; br < 3; br++) {
+        for (let bc = 0; bc < 3; bc++) {
+          for (let d = 1; d <= 9; d++) {
+            if (!testBoard.boxHasValue(br, bc, d) && testBoard.countCandidatePlacesInBox(br, bc, d) === 0) return { type: "box-no-place", boxRow: br, boxCol: bc, digit: d };
+          }
+        }
+      }
+      return null;
+    }
+  };
+
+  // src/tactics/index.ts
+  var NotImplementedTactic = class {
+    find() {
+      return { found: false, message: "Not implemented" };
+    }
+  };
+  var tacticClasses = {
+    "naked-single": NakedSingle,
+    "hidden-single": HiddenSingle,
+    "single-step-guess": SingleStepGuess,
+    "x-wing": NotImplementedTactic,
+    "swordfish": NotImplementedTactic,
+    "xy-wing": NotImplementedTactic,
+    "xyz-wing": NotImplementedTactic
+  };
+  var tactics_default = tacticClasses;
+
+  // src/tactics.ts
+  var SudokuTactics = class {
+    constructor(board) {
+      this.board = board;
+      this.extensions = null;
+      this.tacticDescriptions = {
+        "naked-single": {
+          name: "Naked Single",
+          description: "A cell that has only one possible candidate remaining. This is the most basic solving technique.",
+          difficulty: "Easy",
+          explanation: "When a cell has only one possible number that can be placed there, that number must be the solution for that cell."
+        },
+        "hidden-single": {
+          name: "Hidden Single",
+          description: "A number that can only be placed in one cell within a row, column, or box.",
+          difficulty: "Easy",
+          explanation: "When a number appears as a candidate in only one cell within a row, column, or 3x3 box, that number must be placed in that cell."
+        },
+        "single-step-guess": {
+          name: "Single-Step Guess (Contradiction)",
+          description: "Temporarily assume a candidate in a cell. If this immediately causes a contradiction (no candidates in a cell or a digit has no place in a unit), eliminate that candidate.",
+          difficulty: "Medium",
+          explanation: "Try a candidate and propagate constraints once. If the assumption leaves a unit without a place for some digit, that candidate is impossible."
+        }
+      };
+    }
+    setExtensions(extensions) {
+      this.extensions = extensions;
+    }
+    executeTactic(tacticName) {
+      const classes = tactics_default || {};
+      const Klass = classes[tacticName];
+      if (!Klass) return { found: false, message: `Unknown tactic: ${tacticName}` };
+      const tactic = new Klass(this.board, this.extensions);
+      if (typeof tactic.setExtensions === "function") tactic.setExtensions(this.extensions);
+      if (typeof tactic.find === "function") return tactic.find();
+      return { found: false, message: `Tactic ${tacticName} not implemented` };
+    }
+    getTacticDescription(tacticName) {
+      return this.tacticDescriptions[tacticName] || { name: "Unknown", description: "Unknown", difficulty: "Unknown", explanation: "" };
+    }
+  };
+  var tactics_default2 = SudokuTactics;
+
+  // src/extensions.ts
+  var SudokuExtensions = class {
+    constructor(board) {
+      this.board = board;
+      this.extensions = /* @__PURE__ */ new Map();
+      this.thermoConstraints = [];
+      this.knightConstraints = [];
+      this.kingConstraints = [];
+      this.extensionDescriptions = {
+        "thermo": { name: "Thermo Sudoku", description: "Numbers along a thermometer must increase from the bulb to the tip.", rules: [], difficulty: "Medium" },
+        "knight": { name: "Knight's Move Sudoku", description: "Numbers cannot repeat in cells that are a knight's move away (L-shaped).", rules: [], difficulty: "Hard" },
+        "king": { name: "King's Move Sudoku", description: "Numbers cannot repeat in cells that are adjacent (including diagonally).", rules: [], difficulty: "Medium" },
+        "box-sum-neighbor": { name: "Box-Sum Neighbor", description: "A cell value v cannot be next to any neighbor with value (boxNumber - v).", rules: [], difficulty: "Medium" }
+      };
+    }
+    // ...Detailed methods exist in runtime JS; TS file provides typings and minimal stubs.
+  };
+  var extensions_default = SudokuExtensions;
+
+  // src/app.ts
+  var SudokuApp = class {
+    constructor() {
+      this.lastUnitIssueKeys = null;
+      // DOM references
+      this.puzzleGrid = null;
+      this.tacticSelect = null;
+      this.tacticDescription = null;
+      this.solvingLog = null;
+      this.extensionInfo = null;
+      this.cells = [];
+      this.board = new sudoku_default();
+      this.tactics = new tactics_default2(this.board);
+      this.extensions = new extensions_default(this.board);
+      this.tactics.setExtensions(this.extensions);
+      this.solvingHistory = [];
+      this.currentStep = 0;
+      this.autoSolving = false;
+      this.autoSolveInterval = null;
+      this.lastConflictKeys = /* @__PURE__ */ new Set();
+      this.lastNoCandKeys = /* @__PURE__ */ new Set();
+      this.autoTacticOrder = [
+        "naked-single",
+        "hidden-single",
+        "pointing-pair",
+        "box-line-reduction",
+        "naked-pair",
+        "hidden-pair",
+        "x-wing",
+        "swordfish",
+        "xy-wing",
+        "xyz-wing",
+        "single-step-guess"
+      ];
+      this.initializeUI();
+      this.bindEvents();
+      this.loadExamplePuzzle();
+    }
+    initializeUI() {
+      this.puzzleGrid = document.getElementById("puzzleGrid");
+      this.tacticSelect = document.getElementById("tacticSelect");
+      this.tacticDescription = document.getElementById("tacticDescription");
+      this.solvingLog = document.getElementById("solvingLog");
+      this.extensionInfo = document.getElementById("extensionInfo");
+      this.createSudokuGrid();
+      this.updateTacticDescription();
+      this.updateExtensionInfo();
+    }
+    createSudokuGrid() {
+      if (!this.puzzleGrid) return;
+      this.puzzleGrid.innerHTML = "";
+      this.cells = [];
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.dataset.row = String(row);
+          cell.dataset.col = String(col);
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "cell-input";
+          input.maxLength = 1;
+          input.inputMode = "numeric";
+          const candidates = document.createElement("div");
+          candidates.className = "candidates";
+          for (let n = 1; n <= 9; n++) {
+            const span = document.createElement("div");
+            span.className = "candidate";
+            candidates.appendChild(span);
+          }
+          if (col === 2 || col === 5) {
+            cell.style.borderRight = "2px solid #333";
+          }
+          if (row === 2 || row === 5) {
+            cell.style.borderBottom = "2px solid #333";
+          }
+          cell.appendChild(input);
+          cell.appendChild(candidates);
+          this.puzzleGrid.appendChild(cell);
+          this.cells.push(cell);
+          input.addEventListener("input", (e) => this.handleCellInput(e, row, col));
+          input.addEventListener("keydown", (e) => this.handleCellKeydown(e, row, col));
+          input.addEventListener("focus", () => this.handleCellFocus(row, col));
+          input.addEventListener("blur", () => this.handleCellBlur(row, col));
+        }
+      }
+    }
+    bindEvents() {
+      const el = (id) => document.getElementById(id);
+      el("clearBtn")?.addEventListener("click", () => this.clearBoard());
+      el("loadExampleBtn")?.addEventListener("click", () => this.loadExamplePuzzle());
+      el("validateBtn")?.addEventListener("click", () => this.validateBoard());
+      el("stepBtn")?.addEventListener("click", () => this.executeStep());
+      el("autoSolveBtn")?.addEventListener("click", () => this.toggleAutoSolve());
+      el("resetBtn")?.addEventListener("click", () => this.resetBoard());
+      this.tacticSelect?.addEventListener("change", () => this.updateTacticDescription());
+      el("addThermoBtn")?.addEventListener("click", () => this.addThermoSudoku());
+      el("addKnightBtn")?.addEventListener("click", () => this.addKnightsMove());
+      el("addKingBtn")?.addEventListener("click", () => this.addKingsMove());
+      el("addBoxSumNeighborBtn")?.addEventListener("click", () => this.addBoxSumNeighbor());
+      el("clearExtensionsBtn")?.addEventListener("click", () => this.clearExtensions());
+      el("loadCodeBtn")?.addEventListener("click", () => this.loadFromCodeInput());
+    }
+    handleCellInput(event, row, col) {
+      const inputEl = event.target;
+      const raw = (inputEl.value || "").replace(/[^1-9]/g, "");
+      inputEl.value = raw;
+      const val = raw === "" ? 0 : parseInt(raw, 10);
+      if (val !== 0 && this.extensions.getActiveExtensions && this.extensions.getActiveExtensions().length > 0) {
+        if (this.extensions.validateMove && !this.extensions.validateMove(row, col, val)) {
+          inputEl.value = "";
+          this.logMessage("Move violates constraints", "error");
+          return;
+        }
+      }
+      this.board.setValue(row, col, val);
+      this.updateCellDisplay(row, col);
+      this.updateCandidates();
+    }
+    handleCellKeydown(event, row, col) {
+      if (event.key === "Backspace" || event.key === "Delete") {
+        this.board.setValue(row, col, 0);
+        this.updateCellDisplay(row, col);
+        this.updateCandidates();
+      }
+    }
+    handleCellFocus(row, col) {
+      this.highlightRelatedCells(row, col);
+    }
+    handleCellBlur(row, col) {
+      this.clearHighlights();
+    }
+    highlightRelatedCells(row, col) {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const cell = this.getCellElement(r, c);
+          if (r === row || c === col || Math.floor(r / 3) === Math.floor(row / 3) && Math.floor(c / 3) === Math.floor(col / 3)) {
+            cell.classList.add("highlighted");
+          }
+        }
+      }
+    }
+    clearHighlights() {
+      this.cells.forEach((cell) => cell.classList.remove("highlighted"));
+    }
+    getCellElement(row, col) {
+      return this.cells[row * 9 + col];
+    }
+    updateCellDisplay(row, col) {
+      const cell = this.getCellElement(row, col);
+      const input = cell.querySelector(".cell-input");
+      const value = this.board.getValue(row, col);
+      const isInitial = this.board.initialBoard[row][col] !== 0;
+      input.value = value || "";
+      input.readOnly = isInitial && value !== 0;
+      cell.classList.remove("initial", "solved", "has-value", "conflict", "nocands");
+      if (isInitial) cell.classList.add("initial");
+      if (value !== 0) {
+        cell.classList.add("solved", "has-value");
+      }
+      this.renderCandidatesForCell(row, col);
+    }
+    updateBoardDisplay() {
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          this.updateCellDisplay(row, col);
+        }
+      }
+    }
+    updateCandidates() {
+      if (this.board.updateCandidates) this.board.updateCandidates();
+      if (this.extensions.getActiveExtensions && this.extensions.getActiveExtensions().length > 0) {
+        if (this.extensions.updateCandidatesWithExtensions) this.extensions.updateCandidatesWithExtensions();
+      }
+      this.renderAllCandidates();
+      this.checkConflicts();
+    }
+    renderAllCandidates() {
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          this.renderCandidatesForCell(row, col);
+        }
+      }
+    }
+    renderCandidatesForCell(row, col) {
+      const cell = this.getCellElement(row, col);
+      const overlay = cell.querySelector(".candidates");
+      const value = this.board.getValue(row, col);
+      const spans = overlay.children;
+      if (value !== 0) {
+        for (let i = 0; i < 9; i++) spans[i].textContent = "";
+        return;
+      }
+      const candidates = this.board.getCandidates(row, col);
+      for (let n = 1; n <= 9; n++) {
+        const idx = n - 1;
+        spans[idx].textContent = candidates.includes(n) ? String(n) : "";
+      }
+    }
+    clearBoard() {
+      this.board = new this.board.constructor();
+      this.tactics = new this.tactics.constructor(this.board);
+      this.extensions = new this.extensions.constructor(this.board);
+      this.tactics.setExtensions(this.extensions);
+      this.solvingHistory = [];
+      this.currentStep = 0;
+      this.lastConflictKeys.clear();
+      this.lastNoCandKeys.clear();
+      this.updateBoardDisplay();
+      this.clearHighlights();
+      this.logMessage("Board cleared", "info");
+    }
+    async loadExamplePuzzle() {
+      try {
+        const resp = await fetch("examp.e.json");
+        if (resp && resp.ok) {
+          const data = await resp.json();
+          this.board.loadPuzzle(data);
+          this.updateBoardDisplay();
+          this.updateCandidates();
+          this.logMessage("Example puzzle loaded from examp.e.json", "success");
+          return;
+        }
+      } catch (e) {
+      }
+      if (this.board.getExamplePuzzle) {
+        try {
+          const examplePuzzle = this.board.getExamplePuzzle();
+          this.board.loadPuzzle(examplePuzzle);
+          this.updateBoardDisplay();
+          this.updateCandidates();
+          this.logMessage("Example puzzle loaded", "success");
+          return;
+        } catch (e) {
+          this.logMessage("Failed to load example puzzle", "error");
+          return;
+        }
+      }
+      this.logMessage("No example puzzle available", "warning");
+    }
+    validateBoard() {
+      if (this.board.isBoardValid()) {
+        if (this.board.isComplete()) {
+          this.logMessage("Puzzle is complete and valid!", "success");
+        } else {
+          this.logMessage("Puzzle is valid but incomplete", "warning");
+        }
+      } else {
+        this.logMessage("Puzzle has errors", "error");
+      }
+    }
+    executeStep() {
+      const selectedTactic = this.tacticSelect?.value || "";
+      const result = this.tactics.executeTactic(selectedTactic);
+      if (result && result.found) {
+        this.solvingHistory.push({ tactic: selectedTactic, result, timestamp: /* @__PURE__ */ new Date() });
+        this.updateBoardDisplay();
+        if (this.board.updateCandidates) this.board.updateCandidates();
+        if (this.extensions.getActiveExtensions && this.extensions.getActiveExtensions().length > 0) {
+          if (this.extensions.updateCandidatesWithExtensions) this.extensions.updateCandidatesWithExtensions();
+        }
+        if (result.changes) this.applyCandidateEliminations(result.changes);
+        this.renderAllCandidates();
+        this.checkConflicts();
+        this.logMessage(result.message, "success");
+        if (result.changes) {
+          this.highlightChanges(result.changes);
+        }
+        if (this.board.isComplete && this.board.isComplete()) {
+          this.logMessage("Puzzle solved!", "success");
+          this.stopAutoSolve();
+        }
+      } else {
+        this.logMessage(result ? result.message : "Tactic returned no result", "warning");
+      }
+    }
+    applyCandidateEliminations(changes) {
+      let any = false;
+      const toArray = (val) => Array.isArray(val) ? val : val != null ? [val] : [];
+      changes.forEach((change) => {
+        const { row, col } = change;
+        const removed = new Set([
+          ...toArray(change.removed),
+          ...toArray(change.value),
+          ...toArray(change.values)
+        ].filter((v) => typeof v === "number"));
+        if (removed.size === 0) return;
+        if (this.board.getValue(row, col) !== 0) return;
+        removed.forEach((val) => {
+          this.board.banCandidate(row, col, val);
+          any = true;
+        });
+      });
+      if (any) {
+        if (this.extensions.getActiveExtensions && this.extensions.getActiveExtensions().length > 0) {
+          if (this.extensions.updateCandidatesWithExtensions) this.extensions.updateCandidatesWithExtensions();
+        }
+        this.renderAllCandidates();
+      }
+      return any;
+    }
+    highlightChanges(changes) {
+      this.clearHighlights();
+      changes.forEach((change) => {
+        const cell = this.getCellElement(change.row, change.col);
+        cell.classList.add("highlighted");
+        setTimeout(() => cell.classList.remove("highlighted"), 2e3);
+      });
+    }
+    toggleAutoSolve() {
+      this.autoSolving ? this.stopAutoSolve() : this.startAutoSolve();
+    }
+    startAutoSolve() {
+      this.autoSolving = true;
+      const btn = document.getElementById("autoSolveBtn");
+      if (btn) {
+        btn.textContent = "Stop Auto Solve";
+        btn.classList.remove("btn-success");
+        btn.classList.add("btn-warning");
+      }
+      this.autoSolveInterval = setInterval(() => {
+        this.runAutoStep();
+      }, 600);
+    }
+    runAutoStep() {
+      for (const tactic of this.autoTacticOrder) {
+        const beforeBoard = JSON.stringify(this.board.board);
+        const result = this.tactics.executeTactic(tactic);
+        if (!result || !result.found) continue;
+        const afterBoard = JSON.stringify(this.board.board);
+        const boardChanged = beforeBoard !== afterBoard;
+        if (boardChanged) {
+          this.updateCandidates();
+        }
+        let appliedElims = false;
+        if (result.changes) {
+          appliedElims = this.applyCandidateEliminations(result.changes);
+        }
+        if (!boardChanged && !appliedElims) continue;
+        this.solvingHistory.push({ tactic, result, timestamp: /* @__PURE__ */ new Date() });
+        this.updateBoardDisplay();
+        this.renderAllCandidates();
+        this.checkConflicts();
+        this.logMessage(result.message, "success");
+        if (result.changes) this.highlightChanges(result.changes);
+        if (this.board.isComplete && this.board.isComplete()) {
+          this.logMessage("Puzzle solved!", "success");
+          this.stopAutoSolve();
+        }
+        return true;
+      }
+      this.logMessage("No tactic made progress. Auto-solve paused.", "warning");
+      this.stopAutoSolve();
+      return false;
+    }
+    stopAutoSolve() {
+      this.autoSolving = false;
+      const btn = document.getElementById("autoSolveBtn");
+      if (btn) {
+        btn.textContent = "Auto Solve";
+        btn.classList.remove("btn-warning");
+        btn.classList.add("btn-success");
+      }
+      if (this.autoSolveInterval) {
+        clearInterval(this.autoSolveInterval);
+        this.autoSolveInterval = null;
+      }
+    }
+    resetBoard() {
+      if (this.board.reset) this.board.reset();
+      this.solvingHistory = [];
+      this.currentStep = 0;
+      this.lastConflictKeys.clear();
+      this.lastNoCandKeys.clear();
+      this.updateBoardDisplay();
+      this.updateCandidates();
+      this.clearHighlights();
+      this.logMessage("Board reset to initial state", "info");
+    }
+    updateTacticDescription() {
+      const selectedTactic = this.tacticSelect?.value || "";
+      const description = this.tactics.getTacticDescription(selectedTactic);
+      if (!this.tacticDescription) return;
+      this.tacticDescription.innerHTML = `
+            <h4>${description.name}</h4>
+            <p><strong>Difficulty:</strong> ${description.difficulty}</p>
+            <p>${description.description}</p>
+            <p><strong>How it works:</strong> ${description.explanation}</p>
+        `;
+    }
+    addThermoSudoku() {
+      const thermoPaths = this.extensions.getExampleThermoPaths();
+      const result = this.extensions.addThermoSudoku(thermoPaths);
+      if (result.success) {
+        this.updateCandidates();
+        this.updateExtensionInfo();
+        this.logMessage(result.message, "success");
+      }
+    }
+    addKnightsMove() {
+      const result = this.extensions.addKnightsMove();
+      if (result.success) {
+        this.updateCandidates();
+        this.updateExtensionInfo();
+        this.logMessage(result.message, "success");
+      }
+    }
+    addKingsMove() {
+      const result = this.extensions.addKingsMove();
+      if (result.success) {
+        this.updateCandidates();
+        this.updateExtensionInfo();
+        this.logMessage(result.message, "success");
+      }
+    }
+    addBoxSumNeighbor() {
+      const result = this.extensions.addBoxSumNeighbor();
+      if (result.success) {
+        this.updateCandidates();
+        this.updateExtensionInfo();
+        this.logMessage(result.message, "success");
+      }
+    }
+    clearExtensions() {
+      const result = this.extensions.clearExtensions();
+      if (result.success) {
+        this.updateCandidates();
+        this.updateExtensionInfo();
+        this.logMessage(result.message, "success");
+      }
+    }
+    updateExtensionInfo() {
+      const active = this.extensions.getActiveExtensions ? this.extensions.getActiveExtensions() : [];
+      if (!this.extensionInfo) return;
+      if (active.length === 0) {
+        this.extensionInfo.innerHTML = "<p>No extensions active. Add custom rules to enhance the puzzle.</p>";
+        return;
+      }
+      let html = "<h4>Active Extensions:</h4><ul>";
+      active.forEach((ext) => {
+        const desc = this.extensions.getExtensionDescription(ext);
+        const count = this.extensions.getConstraintCount(ext);
+        html += `<li><strong>${desc.name}</strong> (${desc.difficulty})<br><small>${desc.description}</small><br><small>Constraints: ${count}</small></li>`;
+      });
+      html += "</ul>";
+      this.extensionInfo.innerHTML = html;
+    }
+    // CONFLICT CHECKING
+    checkConflicts() {
+      const conflictKeys = /* @__PURE__ */ new Set();
+      const noCandKeys = /* @__PURE__ */ new Set();
+      const unitIssueKeys = /* @__PURE__ */ new Set();
+      for (let r = 0; r < 9; r++) {
+        const map = /* @__PURE__ */ new Map();
+        for (let c = 0; c < 9; c++) {
+          const v = this.board.getValue(r, c);
+          if (v === 0) continue;
+          const arr = map.get(v) || [];
+          arr.push([r, c]);
+          map.set(v, arr);
+        }
+        for (const [, positions] of map) {
+          if (positions.length > 1) positions.forEach(([rr, cc]) => conflictKeys.add(`${rr},${cc}`));
+        }
+      }
+      for (let c = 0; c < 9; c++) {
+        const map = /* @__PURE__ */ new Map();
+        for (let r = 0; r < 9; r++) {
+          const v = this.board.getValue(r, c);
+          if (v === 0) continue;
+          const arr = map.get(v) || [];
+          arr.push([r, c]);
+          map.set(v, arr);
+        }
+        for (const [, positions] of map) {
+          if (positions.length > 1) positions.forEach(([rr, cc]) => conflictKeys.add(`${rr},${cc}`));
+        }
+      }
+      for (let br = 0; br < 3; br++) {
+        for (let bc = 0; bc < 3; bc++) {
+          const map = /* @__PURE__ */ new Map();
+          for (let r = br * 3; r < br * 3 + 3; r++) {
+            for (let c = bc * 3; c < bc * 3 + 3; c++) {
+              const v = this.board.getValue(r, c);
+              if (v === 0) continue;
+              const arr = map.get(v) || [];
+              arr.push([r, c]);
+              map.set(v, arr);
+            }
+          }
+          for (const [, positions] of map) {
+            if (positions.length > 1) positions.forEach(([rr, cc]) => conflictKeys.add(`${rr},${cc}`));
+          }
+        }
+      }
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (this.board.getValue(r, c) === 0 && this.board.candidates[r][c].size === 0) {
+            noCandKeys.add(`${r},${c}`);
+          }
+        }
+      }
+      for (let r = 0; r < 9; r++) {
+        for (let d = 1; d <= 9; d++) {
+          const hasFixed = this.board.getRow(r).includes(d);
+          if (hasFixed) continue;
+          let places = [];
+          for (let c = 0; c < 9; c++) {
+            if (this.board.getValue(r, c) === 0 && this.board.candidates[r][c].has(d)) places.push([r, c]);
+          }
+          if (places.length === 0) {
+            for (let c = 0; c < 9; c++) if (this.board.getValue(r, c) === 0) unitIssueKeys.add(`${r},${c}`);
+          }
+        }
+      }
+      for (let c = 0; c < 9; c++) {
+        for (let d = 1; d <= 9; d++) {
+          let hasFixed = false;
+          for (let r = 0; r < 9; r++) {
+            if (this.board.getValue(r, c) === d) {
+              hasFixed = true;
+              break;
+            }
+          }
+          if (hasFixed) continue;
+          let places = [];
+          for (let r = 0; r < 9; r++) {
+            if (this.board.getValue(r, c) === 0 && this.board.candidates[r][c].has(d)) places.push([r, c]);
+          }
+          if (places.length === 0) {
+            for (let r = 0; r < 9; r++) if (this.board.getValue(r, c) === 0) unitIssueKeys.add(`${r},${c}`);
+          }
+        }
+      }
+      for (let br = 0; br < 3; br++) {
+        for (let bc = 0; bc < 3; bc++) {
+          for (let d = 1; d <= 9; d++) {
+            let hasFixed = false;
+            let empties = [];
+            for (let r = br * 3; r < br * 3 + 3; r++) {
+              for (let c = bc * 3; c < bc * 3 + 3; c++) {
+                const v = this.board.getValue(r, c);
+                if (v === d) {
+                  hasFixed = true;
+                }
+                if (v === 0) empties.push([r, c]);
+              }
+            }
+            if (hasFixed) continue;
+            let hasPlace = false;
+            for (const [r, c] of empties) {
+              if (this.board.candidates[r][c].has(d)) {
+                hasPlace = true;
+                break;
+              }
+            }
+            if (!hasPlace && empties.length > 0) {
+              for (const [r, c] of empties) unitIssueKeys.add(`${r},${c}`);
+            }
+          }
+        }
+      }
+      this.cells.forEach((cell) => cell.classList.remove("conflict", "nocands", "unit-issue"));
+      conflictKeys.forEach((key) => {
+        const [r, c] = key.split(",").map(Number);
+        this.getCellElement(r, c).classList.add("conflict");
+      });
+      noCandKeys.forEach((key) => {
+        const [r, c] = key.split(",").map(Number);
+        this.getCellElement(r, c).classList.add("nocands");
+      });
+      unitIssueKeys.forEach((key) => {
+        const [r, c] = key.split(",").map(Number);
+        this.getCellElement(r, c).classList.add("unit-issue");
+      });
+      const conflictsChanged = !this.setsEqual(conflictKeys, this.lastConflictKeys);
+      const noCandsChanged = !this.setsEqual(noCandKeys, this.lastNoCandKeys);
+      const unitIssuesChanged = !this.setsEqual(unitIssueKeys, this.lastUnitIssueKeys || /* @__PURE__ */ new Set());
+      if (conflictsChanged || noCandsChanged || unitIssuesChanged) {
+        if (conflictKeys.size > 0) this.logMessage(`Conflicts detected in ${conflictKeys.size} cell(s)`, "error");
+        if (noCandKeys.size > 0) this.logMessage(`No-candidate issue in ${noCandKeys.size} cell(s)`, "warning");
+        if (unitIssueKeys.size > 0) this.logMessage(`Unit impossibility detected (a digit has no place)`, "warning");
+        if (conflictKeys.size === 0 && noCandKeys.size === 0 && unitIssueKeys.size === 0) this.logMessage("No conflicts detected", "success");
+      }
+      this.lastConflictKeys = conflictKeys;
+      this.lastNoCandKeys = noCandKeys;
+      this.lastUnitIssueKeys = unitIssueKeys;
+    }
+    setsEqual(a, b) {
+      if (a.size !== b.size) return false;
+      for (const v of a) if (!b.has(v)) return false;
+      return true;
+    }
+    logMessage(message, type = "info") {
+      const timestamp = (/* @__PURE__ */ new Date()).toLocaleTimeString();
+      if (!this.solvingLog) return;
+      const entry = document.createElement("div");
+      entry.className = `log-entry ${type}`;
+      entry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+      this.solvingLog.appendChild(entry);
+      this.solvingLog.scrollTop = this.solvingLog.scrollHeight;
+      const entries = this.solvingLog.querySelectorAll(".log-entry");
+      if (entries.length > 50) entries[0].remove();
+    }
+    getBoardState() {
+      return { board: this.board.board, initialBoard: this.board.initialBoard, extensions: this.extensions.exportState(), solvingHistory: this.solvingHistory };
+    }
+    loadBoardState(state) {
+      if (state.board) this.board.loadPuzzle(state.board);
+      if (state.extensions) this.extensions.importState(state.extensions);
+      if (state.solvingHistory) this.solvingHistory = state.solvingHistory;
+      this.updateBoardDisplay();
+      this.updateCandidates();
+      this.updateExtensionInfo();
+    }
+    loadFromCodeInput() {
+      const input = document.getElementById("codeInput");
+      const code = (input?.value || "").trim();
+      try {
+        this.board.loadFromCode(code);
+        this.updateBoardDisplay();
+        this.updateCandidates();
+        this.clearHighlights();
+        this.solvingHistory = [];
+        this.logMessage("Loaded puzzle from 81-digit code", "success");
+      } catch (e) {
+        this.logMessage(e.message || "Invalid code", "error");
+      }
+    }
+  };
+  var app_default = SudokuApp;
+
+  // src/entry.ts
+  var g = globalThis;
+  g.SudokuBoard = sudoku_default;
+  g.SudokuTactics = tactics_default2;
+  g.SudokuExtensions = extensions_default;
+  g.tacticClasses = tactics_default;
+  g.SudokuApp = app_default;
+  document.addEventListener("DOMContentLoaded", () => {
+    try {
+      g.sudokuApp = new g.SudokuApp();
+    } catch (e) {
+      console.warn("entry.ts: failed to auto-instantiate SudokuApp", e);
+    }
+  });
+})();
+//# sourceMappingURL=bundle.js.map
