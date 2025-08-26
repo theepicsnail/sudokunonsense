@@ -254,22 +254,38 @@ class SudokuApp {
             // ignore and fall back
         }
 
-        // Fallback to legacy provider if available
-        if (this.board.getExamplePuzzle) {
-            try {
-                const examplePuzzle = this.board.getExamplePuzzle();
+        // Fallback to app-provided example puzzle
+        try {
+            const examplePuzzle = this.getExamplePuzzle();
+            if (examplePuzzle) {
                 this.board.loadPuzzle(examplePuzzle);
                 this.updateBoardDisplay();
                 this.updateCandidates();
                 this.logMessage('Example puzzle loaded', 'success');
                 return;
-            } catch (e) {
-                this.logMessage('Failed to load example puzzle', 'error');
-                return;
             }
+        } catch (e) {
+            this.logMessage('Failed to load example puzzle', 'error');
+            return;
         }
 
         this.logMessage('No example puzzle available', 'warning');
+    }
+
+    // Provide an example puzzle from the app layer. This keeps board implementation
+    // focused on state and lets the app provide UI-friendly assets.
+    getExamplePuzzle(): number[][] {
+        return [
+            [5,3,0,0,7,0,0,0,0],
+            [6,0,0,1,9,5,0,0,0],
+            [0,9,8,0,0,0,0,6,0],
+            [8,0,0,0,6,0,0,0,3],
+            [4,0,0,8,0,3,0,0,1],
+            [7,0,0,0,2,0,0,0,6],
+            [0,6,0,0,0,0,2,8,0],
+            [0,0,0,4,1,9,0,0,5],
+            [0,0,0,0,8,0,0,7,9]
+        ];
     }
 
     validateBoard() {

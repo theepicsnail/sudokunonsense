@@ -21,7 +21,6 @@ export interface BoardAPI {
     isComplete(): boolean;
     getRow(row: number): number[];
     getColumn(col: number): number[];
-    getExamplePuzzle?(): number[][];
     loadFromCode?(code: string): void;
     loadFromString?(str: string): void;
     reset?(): void;
