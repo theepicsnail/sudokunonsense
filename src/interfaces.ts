@@ -25,8 +25,6 @@ export interface BoardAPI {
     loadFromCode?(code: string): void;
     loadFromString?(str: string): void;
     reset?(): void;
-    getNakedSingles?(): Array<{ row: number; col: number; value: number }>;
-    getHiddenSingles?(): Array<{ row: number; col: number; value: number; type?: string }>;
 }
 
 export interface TacticsAPI {
