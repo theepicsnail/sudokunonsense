@@ -12,7 +12,6 @@ class SudokuApp {
     tactics: TacticsAPI;
     extensions: ExtensionsAPI;
     solvingHistory: Array<{ tactic: string; result: TacticResult; timestamp: Date }>;
-    currentStep: number;
     autoSolving: boolean;
     autoSolveInterval: ReturnType<typeof setInterval> | null;
     lastConflictKeys: Set<string>;
@@ -25,8 +24,7 @@ class SudokuApp {
         this.tactics = new SudokuTactics(this.board) as TacticsAPI;
         this.extensions = new SudokuExtensions(this.board) as ExtensionsAPI;
         this.tactics.setExtensions(this.extensions);
-        this.solvingHistory = [];
-        this.currentStep = 0;
+    this.solvingHistory = [];
         this.autoSolving = false;
         this.autoSolveInterval = null;
         this.lastConflictKeys = new Set();
@@ -228,8 +226,7 @@ class SudokuApp {
         this.tactics = new (this.tactics.constructor as any)(this.board);
         this.extensions = new (this.extensions.constructor as any)(this.board);
         this.tactics.setExtensions(this.extensions);
-        this.solvingHistory = [];
-        this.currentStep = 0;
+    this.solvingHistory = [];
         this.lastConflictKeys.clear();
         this.lastNoCandKeys.clear();
         this.updateBoardDisplay();
@@ -412,8 +409,7 @@ class SudokuApp {
 
     resetBoard() {
         if (this.board.reset) this.board.reset();
-        this.solvingHistory = [];
-        this.currentStep = 0;
+    this.solvingHistory = [];
         this.lastConflictKeys.clear();
         this.lastNoCandKeys.clear();
         this.updateBoardDisplay();

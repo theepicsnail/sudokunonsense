@@ -6,7 +6,6 @@ export interface BoardAPI {
     candidates: Set<number>[][];
     bannedCandidates: Set<number>[][];
     solvingHistory: Array<{ tactic: string; result: TacticResult; timestamp: Date }>;
-    currentStep: number;
 
     loadPuzzle(puzzle: number[][]): void;
     resetCandidates(): void;

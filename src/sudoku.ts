@@ -8,15 +8,13 @@ class SudokuBoard {
     candidates: Set<number>[][];
     bannedCandidates: Set<number>[][];
     solvingHistory: any[];
-    currentStep: number;
 
     constructor() {
         this.board = Array(9).fill(null).map(() => Array(9).fill(0));
         this.initialBoard = Array(9).fill(null).map(() => Array(9).fill(0));
-        this.candidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => new Set([1,2,3,4,5,6,7,8,9])));
+        this.candidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => new Set([1, 2, 3, 4, 5, 6, 7, 8, 9])));
         this.bannedCandidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => new Set<number>()));
         this.solvingHistory = [];
-        this.currentStep = 0;
     }
 
     loadPuzzle(puzzle: number[][]) {
@@ -25,12 +23,11 @@ class SudokuBoard {
         this.resetCandidates();
         this.clearAllBans();
         this.solvingHistory = [];
-        this.currentStep = 0;
         this.updateCandidates();
     }
 
     resetCandidates() {
-        this.candidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => new Set([1,2,3,4,5,6,7,8,9])));
+        this.candidates = Array(9).fill(null).map(() => Array(9).fill(null).map(() => new Set([1, 2, 3, 4, 5, 6, 7, 8, 9])));
     }
 
     clearAllBans() {
@@ -156,7 +153,6 @@ class SudokuBoard {
         this.clearAllBans();
         this.updateCandidates();
         this.solvingHistory = [];
-        this.currentStep = 0;
     }
 
     toString() { return this.board.map(row => row.join(' ')).join('\n'); }
