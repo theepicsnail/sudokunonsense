@@ -142,88 +142,6 @@ class SudokuBoard {
                     empty.push({ row, col });
         return empty;
     }
-    getNakedSingles() {
-        const singles = [];
-        for (let row = 0; row < 9; row++) {
-            for (let col = 0; col < 9; col++) {
-                if (this.board[row][col] === 0 && this.candidates[row][col].size === 1) {
-                    singles.push({ row, col, value: Array.from(this.candidates[row][col])[0] });
-                }
-            }
-        }
-        return singles;
-    }
-    getHiddenSingles() {
-        const singles = [];
-        for (let row = 0; row < 9; row++) {
-            const candidates = this.getRowCandidates(row);
-            for (let value = 1; value <= 9; value++) {
-                if (candidates[value].length === 1) {
-                    singles.push({ row, col: candidates[value][0], value, type: 'row' });
-                }
-            }
-        }
-        for (let col = 0; col < 9; col++) {
-            const candidates = this.getColumnCandidates(col);
-            for (let value = 1; value <= 9; value++) {
-                if (candidates[value].length === 1) {
-                    singles.push({ row: candidates[value][0], col, value, type: 'column' });
-                }
-            }
-        }
-        for (let boxRow = 0; boxRow < 3; boxRow++) {
-            for (let boxCol = 0; boxCol < 3; boxCol++) {
-                const candidates = this.getBoxCandidates(boxRow, boxCol);
-                for (let value = 1; value <= 9; value++) {
-                    if (candidates[value].length === 1) {
-                        const pos = candidates[value][0];
-                        singles.push({ row: pos.row, col: pos.col, value, type: 'box' });
-                    }
-                }
-            }
-        }
-        return singles;
-    }
-    getRowCandidates(row) {
-        const candidates = {};
-        for (let value = 1; value <= 9; value++)
-            candidates[value] = [];
-        for (let col = 0; col < 9; col++) {
-            if (this.board[row][col] === 0) {
-                for (const value of this.candidates[row][col])
-                    candidates[value].push(col);
-            }
-        }
-        return candidates;
-    }
-    getColumnCandidates(col) {
-        const candidates = {};
-        for (let value = 1; value <= 9; value++)
-            candidates[value] = [];
-        for (let row = 0; row < 9; row++) {
-            if (this.board[row][col] === 0) {
-                for (const value of this.candidates[row][col])
-                    candidates[value].push(row);
-            }
-        }
-        return candidates;
-    }
-    getBoxCandidates(boxRow, boxCol) {
-        const candidates = {};
-        for (let value = 1; value <= 9; value++)
-            candidates[value] = [];
-        const startRow = boxRow * 3;
-        const startCol = boxCol * 3;
-        for (let r = startRow; r < startRow + 3; r++) {
-            for (let c = startCol; c < startCol + 3; c++) {
-                if (this.board[r][c] === 0) {
-                    for (const value of this.candidates[r][c])
-                        candidates[value].push({ row: r, col: c });
-                }
-            }
-        }
-        return candidates;
-    }
     reset() {
         this.board = this.initialBoard.map(row => [...row]);
         this.clearAllBans();
@@ -257,19 +175,6 @@ class SudokuBoard {
             puzzle.push(row);
         }
         this.loadPuzzle(puzzle);
-    }
-    getExamplePuzzle() {
-        return [
-            [5, 3, 0, 0, 7, 0, 0, 0, 0],
-            [6, 0, 0, 1, 9, 5, 0, 0, 0],
-            [0, 9, 8, 0, 0, 0, 0, 6, 0],
-            [8, 0, 0, 0, 6, 0, 0, 0, 3],
-            [4, 0, 0, 8, 0, 3, 0, 0, 1],
-            [7, 0, 0, 0, 2, 0, 0, 0, 6],
-            [0, 6, 0, 0, 0, 0, 2, 8, 0],
-            [0, 0, 0, 4, 1, 9, 0, 0, 5],
-            [0, 0, 0, 0, 8, 0, 0, 7, 9]
-        ];
     }
 }
 export default SudokuBoard;
