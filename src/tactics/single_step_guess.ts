@@ -3,6 +3,7 @@
 */
 
 import BaseTactic from './base_tactic';
+import { TacticResult } from './types';
 
 interface BoardLike {
     getEmptyCells(): Array<{ row: number; col: number }>;
@@ -24,7 +25,7 @@ export default class SingleStepGuess extends BaseTactic {
 
     constructor(board: BoardLike, extensions: any = null) { super(board, extensions); this.board = board; this.extensions = extensions; }
 
-    find(): { found: boolean; message: string; changes?: Array<object> } {
+    find(): TacticResult {
             const useExtensions = !!this.extensions;
             const exported = useExtensions && this.extensions.exportState ? this.extensions.exportState() : null;
 

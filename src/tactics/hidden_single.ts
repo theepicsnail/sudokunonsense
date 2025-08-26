@@ -5,6 +5,7 @@
 */
 
 import BaseTactic from './base_tactic';
+import { TacticResult } from './types';
 
 export interface HiddenSingleCandidate { row: number; col: number; value: number; type: string; }
 
@@ -23,7 +24,7 @@ export default class HiddenSingle extends BaseTactic {
         this.extensions = extensions;
     }
 
-    find(): { found: boolean; message: string; changes?: Array<object> } {
+    find(): TacticResult {
         const singles = this.board.getHiddenSingles();
         if (!singles || singles.length === 0) {
             return { found: false, message: 'No hidden singles' };

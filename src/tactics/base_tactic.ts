@@ -2,6 +2,8 @@
    Mirrors `tactics/base_tactic.js` behavior and registers on window.BaseTactic
 */
 
+import { TacticResult } from './types';
+
 export class BaseTactic {
     board: any;
     extensions: any;
@@ -15,7 +17,7 @@ export class BaseTactic {
         this.extensions = ext;
     }
 
-    find(): { found: boolean; message: string } {
+    find(): TacticResult {
         return { found: false, message: 'Not implemented' };
     }
 }
