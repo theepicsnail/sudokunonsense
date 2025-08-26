@@ -140,7 +140,7 @@ class SudokuApp {
         const input = cell.querySelector('.cell-input');
         const value = this.board.getValue(row, col);
         const isInitial = this.board.initialBoard[row][col] !== 0;
-        input.value = value || '';
+        input.value = value ? String(value) : '';
         input.readOnly = isInitial && value !== 0;
         cell.classList.remove('initial', 'solved', 'has-value', 'conflict', 'nocands');
         if (isInitial)

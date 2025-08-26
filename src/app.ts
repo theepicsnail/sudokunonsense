@@ -5,24 +5,25 @@
 import SudokuBoard from './sudoku';
 import SudokuTactics from './tactics';
 import SudokuExtensions from './extensions';
+import { BoardAPI, TacticsAPI, ExtensionsAPI, TacticChange, TacticResult } from './interfaces';
 
 class SudokuApp {
-    board: any;
-    tactics: any;
-    extensions: any;
-    solvingHistory: any[];
+    board: BoardAPI;
+    tactics: TacticsAPI;
+    extensions: ExtensionsAPI;
+    solvingHistory: Array<{ tactic: string; result: TacticResult; timestamp: Date }>;
     currentStep: number;
     autoSolving: boolean;
-    autoSolveInterval: any;
+    autoSolveInterval: ReturnType<typeof setInterval> | null;
     lastConflictKeys: Set<string>;
     lastNoCandKeys: Set<string>;
     lastUnitIssueKeys: Set<string> | null = null;
     autoTacticOrder: string[];
 
     constructor() {
-        this.board = new SudokuBoard();
-        this.tactics = new SudokuTactics(this.board);
-        this.extensions = new SudokuExtensions(this.board);
+        this.board = new SudokuBoard() as BoardAPI;
+        this.tactics = new SudokuTactics(this.board) as TacticsAPI;
+        this.extensions = new SudokuExtensions(this.board) as ExtensionsAPI;
         this.tactics.setExtensions(this.extensions);
         this.solvingHistory = [];
         this.currentStep = 0;
@@ -118,7 +119,7 @@ class SudokuApp {
         el('loadCodeBtn')?.addEventListener('click', () => this.loadFromCodeInput());
     }
 
-    handleCellInput(event: any, row: number, col: number) {
+    handleCellInput(event: InputEvent & { target: HTMLInputElement }, row: number, col: number) {
         const inputEl = event.target as HTMLInputElement;
         const raw = (inputEl.value || '').replace(/[^1-9]/g, '');
         inputEl.value = raw;
@@ -169,7 +170,7 @@ class SudokuApp {
         const value = this.board.getValue(row, col);
         const isInitial = this.board.initialBoard[row][col] !== 0;
 
-        input.value = value || '';
+    input.value = value ? String(value) : '';
         input.readOnly = isInitial && value !== 0;
 
         cell.classList.remove('initial', 'solved', 'has-value', 'conflict', 'nocands');
@@ -308,11 +309,11 @@ class SudokuApp {
         }
     }
 
-    applyCandidateEliminations(changes: any[]) {
+    applyCandidateEliminations(changes: TacticChange[]) {
         let any = false;
         const toArray = (val: any) => Array.isArray(val) ? val : (val != null ? [val] : []);
         changes.forEach(change => {
-            const { row, col } = change;
+            const { row, col } = change as { row: number; col: number };
             const removed = new Set([
                 ...toArray(change.removed),
                 ...toArray(change.value),
@@ -334,7 +335,7 @@ class SudokuApp {
         return any;
     }
 
-    highlightChanges(changes: any[]) {
+    highlightChanges(changes: TacticChange[]) {
         this.clearHighlights();
         changes.forEach(change => {
             const cell = this.getCellElement(change.row, change.col);
