@@ -1,3 +1,61 @@
+/* Right panel layout for log and controls */
+.right-panel {
+  width: 100%;
+  max-width: 400px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-items: stretch;
+  height: 100%;
+}
+
+#solver-log {
+  flex: 1 1 0;
+  min-height: 200px;
+  max-height: none;
+  overflow-y: auto;
+}
+
+.solver-controls {
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .row.flex-lg-nowrap {
+    flex-wrap: nowrap !important;
+  }
+  .right-panel {
+    height: var(--board-size);
+    min-height: var(--board-size);
+    max-height: var(--board-size);
+    justify-content: stretch;
+  }
+  #solver-log {
+    min-height: 0;
+    max-height: none;
+    height: 65%;
+  }
+  .solver-controls {
+    flex: 0 0 auto;
+    height: 35%;
+    margin-bottom: 0;
+  }
+}
+/* Always show top border for top row */
+.sudoku-cell:nth-child(-n+9) {
+  border-top: 2px solid var(--border-color);
+}
+
+/* Always show left border for leftmost column */
+.sudoku-cell:nth-child(9n+1) {
+  border-left: 2px solid var(--border-color);
+}
+
+/* Always show bottom border for bottom row */
+.sudoku-cell:nth-child(n+73) {
+  border-bottom: 2px solid var(--border-color);
+}
 :root {
   --board-size: min(600px, 90vw);
   --border-color: #34495e;
@@ -42,65 +100,118 @@ footer {
     font-size: 0.8rem;
 }
 
+/* Sudoku board grid with fixed aspect ratio */
 #sudoku-board {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
+  aspect-ratio: 1 / 1;
   width: var(--board-size);
-  height: var(--board-size);
+  max-width: 100vw;
   border: 3px solid var(--border-color);
-  margin: 2rem auto;
   box-shadow: 0 8px 16px rgba(0,0,0,0.15);
   border-radius: 8px;
   overflow: hidden;
 }
 
+/* Each cell in the grid */
 .sudoku-cell {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 2rem;
-  border: 1px solid #bdc3c7;
+  border: 2px solid #bdc3c7;
   background-color: var(--cell-bg);
   transition: background-color 0.2s ease-in-out;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.sudoku-cell:nth-child(3n) {
-  border-right: 2px solid var(--border-color);
-}
-
-.sudoku-cell:nth-child(9n) {
-  border-right: none;
-}
-
-.sudoku-cell:nth-child(n+19):nth-child(-n+27),
-.sudoku-cell:nth-child(n+46):nth-child(-n+54) {
-  border-bottom: 2px solid var(--border-color);
-}
-
+/* Full size digit in a cell. */
 .sudoku-cell.value-set {
     font-size: 2rem;
     font-weight: bold;
     color: var(--cell-value-color);
 }
 
-.sudoku-cell.single-candidate {
-    font-size: 2rem;
-    color: var(--cell-candidate-color);
+/* Currently selected cell */
+.sudoku-cell.active {
+  background-color: var(--cell-active-bg);
+  border: 2px solid var(--border-color) !important;
 }
 
+/* Grid containing all the candidate digits. */
 .candidates-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     width: 100%;
     height: 100%;
-    font-size: 0.8rem;
-    text-align: center;
-    color: var(--cell-candidate-color);
-    opacity: 0.25;
 }
 
-.sudoku-cell.active {
-  background-color: var(--cell-active-bg);
-  border: 2px solid var(--border-color) !important;
+/* Each candidate digit */
+
+.candidates-grid span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--cell-candidate-color);
+  opacity: 0.25;
 }
+
+
+
+
+
+/* Start box bordering logic*/
+/* Right border for columns 3, 6, 9 */
+.sudoku-cell:nth-child(3n) {
+  border-right: 2px solid var(--border-color);
+}
+.sudoku-cell:nth-child(9n) {
+  border-right: 2px solid var(--border-color);
+}
+
+/* Left border for columns 4 and 7 */
+.sudoku-cell:nth-child(4),
+.sudoku-cell:nth-child(13),
+.sudoku-cell:nth-child(22),
+.sudoku-cell:nth-child(31),
+.sudoku-cell:nth-child(40),
+.sudoku-cell:nth-child(49),
+.sudoku-cell:nth-child(58),
+.sudoku-cell:nth-child(67),
+.sudoku-cell:nth-child(76) {
+  border-left: 2px solid var(--border-color);
+}
+.sudoku-cell:nth-child(7),
+.sudoku-cell:nth-child(16),
+.sudoku-cell:nth-child(25),
+.sudoku-cell:nth-child(34),
+.sudoku-cell:nth-child(43),
+.sudoku-cell:nth-child(52),
+.sudoku-cell:nth-child(61),
+.sudoku-cell:nth-child(70),
+.sudoku-cell:nth-child(79) {
+  border-left: 2px solid var(--border-color);
+}
+
+/* Bottom border for rows 3 and 6 */
+.sudoku-cell:nth-child(n+19):nth-child(-n+27),
+.sudoku-cell:nth-child(n+46):nth-child(-n+54) {
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Top border for rows 4 and 7 */
+.sudoku-cell:nth-child(n+28):nth-child(-n+36),
+.sudoku-cell:nth-child(n+55):nth-child(-n+63) {
+  border-top: 2px solid var(--border-color);
+}
+/* End box bordering logic*/
+
 
