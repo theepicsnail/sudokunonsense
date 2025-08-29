@@ -1,95 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src-elem 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
-    <title>Sudoku Solver - Human Tactics</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Sudoku Solver</h1>
-            <p>Solve sudoku puzzles using human-like tactics, step by step</p>
-        </header>
-
-        <main>
-            <div class="solver-section">
-                <div class="puzzle-container">
-                    <div class="puzzle-grid" id="puzzleGrid">
-                        <!-- Sudoku grid will be generated here -->
-                    </div>
-                    <div class="puzzle-controls">
-                        <button id="clearBtn" class="btn btn-secondary">Clear</button>
-                        <button id="loadExampleBtn" class="btn btn-secondary">Load Example</button>
-                        <button id="validateBtn" class="btn btn-primary">Validate</button>
-                    </div>
-                    <div class="puzzle-controls" style="margin-top:10px; gap:8px;">
-                        <input id="codeInput" type="text" placeholder="Paste 81-digit puzzle code" style="flex:1; padding:10px; border:2px solid #e0e0e0; border-radius:10px; font-family: monospace;" />
-                        <button id="loadCodeBtn" class="btn btn-primary">Load Code</button>
-                    </div>
-                </div>
-
-                <div class="solver-controls">
-                    <div class="tactic-selector">
-                        <label for="tacticSelect">Solving Tactic:</label>
-                        <select id="tacticSelect" class="tactic-dropdown">
-                            <option value="naked-single">Naked Single</option>
-                            <option value="hidden-single">Hidden Single</option>
-                            <option value="naked-pair">Naked Pair</option>
-                            <option value="hidden-pair">Hidden Pair</option>
-                            <option value="pointing-pair">Pointing Pair</option>
-                            <option value="box-line-reduction">Box-Line Reduction</option>
-                            <option value="x-wing">X-Wing</option>
-                            <option value="swordfish">Swordfish</option>
-                            <option value="xy-wing">XY-Wing</option>
-                            <option value="xyz-wing">XYZ-Wing</option>
-                            <option value="single-step-guess">Single-Step Guess (Contradiction)</option>
-                        </select>
-                    </div>
-                    <div class="control-buttons">
-                        <button id="stepBtn" class="btn btn-primary">Step</button>
-                        <button id="autoSolveBtn" class="btn btn-success">Auto Solve</button>
-                        <button id="resetBtn" class="btn btn-warning">Reset</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="info-section">
-                <div class="tactic-info">
-                    <h3>Tactic Information</h3>
-                    <div id="tacticDescription" class="tactic-description">
-                        Select a tactic to see its description and how it works.
-                    </div>
-                </div>
-
-                <div class="solving-log">
-                    <h3>Solving Log</h3>
-                    <div id="solvingLog" class="log-content">
-                        <p>Ready to solve! Enter a puzzle and start stepping through tactics.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <div class="extensions-section">
-            <h3>Custom Rules & Extensions</h3>
-            <div class="extension-controls">
-                <button id="addThermoBtn" class="btn btn-outline">Add Thermo Sudoku</button>
-                <button id="addKnightBtn" class="btn btn-outline">Add Knight's Move</button>
-                <button id="addKingBtn" class="btn btn-outline">Add King's Move</button>
-                <button id="addBoxSumNeighborBtn" class="btn btn-outline">Add Box-Sum Neighbor</button>
-                <button id="clearExtensionsBtn" class="btn btn-outline">Clear Extensions</button>
-            </div>
-            <div id="extensionInfo" class="extension-info">
-                <p>Extensions will be implemented here for custom sudoku variants.</p>
-            </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yet Another Sudoku Solver</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body class="bg-light">
+    <header class="bg-primary text-white py-3 mb-4 shadow-sm">
+      <div class="container">
+        <h1 class="mb-0">Sudoku Solver</h1>
+      </div>
+    </header>
+    <main class="container">
+  <div class="row justify-content-center align-items-start g-4 w-100">
+        <div class="col-12 col-lg-9 d-flex justify-content-center mb-4 mb-lg-0">
+          <div id="sudoku-board"></div>
         </div>
-    </div>
-
-    <!-- Load single bundled script for maximum browser compatibility -->
-    <script src="./bundle.js"></script>
-</body>
+        <div class="col-12 col-lg-3">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="mb-3">
+                <button id="step-solver-btn" class="btn btn-primary w-100 mb-2">Step Solver</button>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="auto-step-toggle">
+                  <label class="form-check-label" for="auto-step-toggle">Auto Step</label>
+                </div>
+              </div>
+              <div id="solver-log" class="solver-log card p-2" style="min-height: 40vh; max-height: 60vh; overflow-y: auto;">
+                <b>Solver Log:</b>
+                <ul id="solver-log-list" class="solver-log-list mb-0"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="bg-primary text-white text-center py-3 mt-4">
+      <p class="mb-0">Built with Vite, TypeScript, and Bootstrap 5</p>
+    </footer>
+    <script type="module" src="/bundle.js"></script>
+  </body>
 </html>
